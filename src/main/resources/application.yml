@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: leaderboard
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+
+springdoc:
+  swagger-ui:
+    url: api.yml

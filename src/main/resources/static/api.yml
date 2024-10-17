@@ -1,0 +1,52 @@
+openapi: 3.1.0
+
+info:
+  title: Leaderboard API
+  description: API for managing leaderboard entries
+  version: 1.0.0
+
+servers:
+  - url: https://localhost:8080
+
+paths:
+  /v1/leaderboard:
+    get:
+      operationId: getLeaderboard
+      summary: Get the leaderboard entries
+      tags:
+        - Leaderboard
+      responses:
+        200:
+          description: List of leaderboard entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaderboardEntry'
+    post:
+      operationId: postLeaderboard
+      summary: Add a new leaderboard entry
+      tags:
+        - Leaderboard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaderboardEntry'
+      responses:
+        201:
+          description: Leaderboard entry created
+        400:
+          description: Invalid data
+
+components:
+  schemas:
+    LeaderboardEntry:
+      type: object
+      properties:
+        username:
+          type: string
+        score:
+          type: integer
