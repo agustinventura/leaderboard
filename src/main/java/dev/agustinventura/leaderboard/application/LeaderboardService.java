@@ -1,18 +1,69 @@
 package dev.agustinventura.leaderboard.application;
 
 import dev.agustinventura.leaderboard.application.model.Leaderboard;
-import dev.agustinventura.leaderboard.application.ports.in.CreateEntryUseCase;
+import dev.agustinventura.leaderboard.application.model.LeaderboardEntry;
+import dev.agustinventura.leaderboard.application.ports.in.CreateLeaderboardEntryUseCase;
 import dev.agustinventura.leaderboard.application.ports.in.GetLeaderboardUseCase;
-import java.util.Set;
+import dev.agustinventura.leaderboard.application.ports.in.UpdateLeaderboardEntryUseCase;
+import dev.agustinventura.leaderboard.application.ports.out.LoadLeaderboardPort;
+import dev.agustinventura.leaderboard.application.ports.out.SaveLeaderboardPort;
 
-public class LeaderboardService implements GetLeaderboardUseCase, CreateEntryUseCase {
+public class LeaderboardService implements GetLeaderboardUseCase, CreateLeaderboardEntryUseCase, UpdateLeaderboardEntryUseCase {
 
-  @Override
-  public void create(String username, String score) {
+  private final LoadLeaderboardPort loadLeaderboardPort;
+
+  private final SaveLeaderboardPort saveLeaderboardPort;
+
+  public LeaderboardService(LoadLeaderboardPort loadLeaderboardPort, SaveLeaderboardPort saveLeaderboardPort) {
+    this.loadLeaderboardPort = loadLeaderboardPort;
+    this.saveLeaderboardPort = saveLeaderboardPort;
   }
 
   @Override
   public Leaderboard getLeaderboard() {
-    return new Leaderboard(Set.of());
+    return loadLeaderboardPort.load();
+  }
+
+  @Override
+  public Leaderboard create(String playerName, String score) {
+    LeaderboardEntry leaderboardEntry = createLeaderboard(playerName, score);
+    Leaderboard leaderboard = getLeaderboard();
+    leaderboard.add(leaderboardEntry);
+    return saveLeaderboardPort.save(leaderboard);
+  }
+
+  @Override
+  public Leaderboard update(String playerName, String score) {
+    LeaderboardEntry leaderboardEntry = createLeaderboard(playerName, score);
+    Leaderboard leaderboard = getLeaderboard();
+    leaderboard.update(leaderboardEntry);
+    return saveLeaderboardPort.save(leaderboard);
+  }
+
+  private LeaderboardEntry createLeaderboard(String playerName, String score) {
+    validatePlayerName(playerName);
+    validateScore(score);
+    return new LeaderboardEntry(playerName, score);
+  }
+
+  private void validatePlayerName(String playerName) {
+    if (playerName == null || playerName.trim().isEmpty()) {
+      throw new IllegalArgumentException("Player name must not be null or empty");
+    }
+  }
+
+  private void validateScore(String score) {
+    if (score == null) {
+      throw new IllegalArgumentException("Score must not be null");
+    }
+
+    try {
+      int scoreValue = Integer.parseInt(score);
+      if (scoreValue < 1) {
+        throw new IllegalArgumentException("Score must be greater than one");
+      }
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Score must be a valid integer");
+    }
   }
 }

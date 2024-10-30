@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: 'postgres:17'
+    environment:
+      - 'POSTGRES_DB=leaderboard'
+      - 'POSTGRES_PASSWORD=leaderboard'
+      - 'POSTGRES_USER=leaderboard'
+    ports:
+      - '5432'

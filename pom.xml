@@ -1,236 +1,303 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.3.4</version>
-    <relativePath/> <!-- lookup parent from repository -->
-  </parent>
-
-  <groupId>dev.agustinventura</groupId>
   <artifactId>leaderboard</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>leaderboard</name>
-  <description>leaderboard</description>
-
-  <properties>
-    <java.version>21</java.version>
-    <org.mapstruct.version>1.6.2</org.mapstruct.version>
-    <cucumber.version>7.20.0</cucumber.version>
-  </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.validation</groupId>
-      <artifactId>jakarta.validation-api</artifactId>
-      <version>3.1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate.validator</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <version>8.0.1.Final</version>
-    </dependency>
-    <dependency>
-      <groupId>org.openapitools</groupId>
-      <artifactId>jackson-databind-nullable</artifactId>
-      <version>0.2.6</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.6.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.mapstruct</groupId>
-      <artifactId>mapstruct</artifactId>
-      <version>${org.mapstruct.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-devtools</artifactId>
-      <scope>runtime</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-suite</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.cucumber</groupId>
-      <artifactId>cucumber-java</artifactId>
-      <version>${cucumber.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.cucumber</groupId>
-      <artifactId>cucumber-spring</artifactId>
-      <version>${cucumber.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.cucumber</groupId>
-      <artifactId>cucumber-junit-platform-engine</artifactId>
-      <version>${cucumber.version}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 
   <build>
     <defaultGoal>verify</defaultGoal>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
           <annotationProcessorPaths>
             <path>
-              <groupId>org.mapstruct</groupId>
               <artifactId>mapstruct-processor</artifactId>
+              <groupId>org.mapstruct</groupId>
               <version>${org.mapstruct.version}</version>
             </path>
             <!-- other annotation processors -->
           </annotationProcessorPaths>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
         </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
       </plugin>
       <plugin>
-        <groupId>org.openapitools</groupId>
         <artifactId>openapi-generator-maven-plugin</artifactId>
-        <version>7.8.0</version>
         <executions>
           <execution>
+            <configuration>
+              <apiPackage>${project.groupId}.${project.artifactId}.adapter.in.rest</apiPackage>
+              <configOptions>
+                <delegatePattern>true</delegatePattern>
+                <interfaceOnly>true</interfaceOnly>
+                <unhandledException>true</unhandledException>
+                <useJakartaEe>true</useJakartaEe>
+                <useSpringBoot3>true</useSpringBoot3>
+                <useSwaggerUI>true</useSwaggerUI>
+              </configOptions>
+              <generateApiTests>false</generateApiTests>
+              <generateModelTests>false</generateModelTests>
+              <generatorName>spring</generatorName>
+              <inputSpec>${project.basedir}/src/main/resources/static/api.yml</inputSpec>
+              <library>spring-boot</library>
+              <modelNameSuffix>RESTDTO</modelNameSuffix>
+              <modelPackage>${project.groupId}.${project.artifactId}.adapter.in.rest.dto</modelPackage>
+            </configuration>
             <goals>
               <goal>generate</goal>
             </goals>
-            <configuration>
-              <inputSpec>${project.basedir}/src/main/resources/static/api.yml</inputSpec>
-              <generatorName>spring</generatorName>
-              <library>spring-boot</library>
-              <apiPackage>${project.groupId}.${project.artifactId}.adapter.in.rest</apiPackage>
-              <modelPackage>${project.groupId}.${project.artifactId}.adapter.in.rest.dto</modelPackage>
-              <modelNameSuffix>DTO</modelNameSuffix>
-              <generateApiTests>false</generateApiTests>
-              <generateModelTests>false</generateModelTests>
-              <configOptions>
-                <useJakartaEe>true</useJakartaEe>
-                <interfaceOnly>true</interfaceOnly>
-                <useSpringBoot3>true</useSpringBoot3>
-                <useSwaggerUI>true</useSwaggerUI>
-                <delegatePattern>true</delegatePattern>
-                <unhandledException>true</unhandledException>
-              </configOptions>
-            </configuration>
           </execution>
         </executions>
+        <groupId>org.openapitools</groupId>
+        <version>7.8.0</version>
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <includes>
             <include>**/dev/agustinventura/leaderboard/unit/**/*Test.java</include>
           </includes>
         </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <executions>
           <execution>
-            <id>integration-tests</id>
-            <phase>integration-test</phase>
             <goals>
               <goal>integration-test</goal>
             </goals>
+            <id>integration-tests</id>
+            <phase>integration-test</phase>
           </execution>
 
           <execution>
-            <id>acceptance-tests</id>
-            <phase>verify</phase>
             <goals>
               <goal>verify</goal>
             </goals>
+            <id>acceptance-tests</id>
+            <phase>verify</phase>
           </execution>
         </executions>
+        <groupId>org.apache.maven.plugins</groupId>
       </plugin>
 
       <plugin>
-        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <groupId>org.springframework.boot</groupId>
       </plugin>
     </plugins>
   </build>
 
+  <dependencies>
+    <dependency>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-data-jdbc</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>hibernate-validator</artifactId>
+      <groupId>org.hibernate.validator</groupId>
+      <version>8.0.1.Final</version>
+    </dependency>
+    <dependency>
+      <artifactId>jackson-databind-nullable</artifactId>
+      <groupId>org.openapitools</groupId>
+      <version>0.2.6</version>
+    </dependency>
+    <dependency>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+      <groupId>org.springdoc</groupId>
+      <version>2.6.0</version>
+    </dependency>
+    <dependency>
+      <artifactId>mapstruct</artifactId>
+      <groupId>org.mapstruct</groupId>
+      <version>${org.mapstruct.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>flyway-core</artifactId>
+      <groupId>org.flywaydb</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>flyway-database-postgresql</artifactId>
+      <groupId>org.flywaydb</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-devtools</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <optional>true</optional>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <artifactId>postgresql</artifactId>
+      <groupId>org.postgresql</groupId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-docker-compose</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <optional>true</optional>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>junit-platform-suite</artifactId>
+      <groupId>org.junit.platform</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>cucumber-java</artifactId>
+      <groupId>io.cucumber</groupId>
+      <scope>test</scope>
+      <version>${cucumber.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>cucumber-spring</artifactId>
+      <groupId>io.cucumber</groupId>
+      <scope>test</scope>
+      <version>${cucumber.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>cucumber-junit-platform-engine</artifactId>
+      <groupId>io.cucumber</groupId>
+      <scope>test</scope>
+      <version>${cucumber.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-testcontainers</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>junit-jupiter</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>postgresql</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <description>leaderboard</description>
+  <groupId>dev.agustinventura</groupId>
+  <modelVersion>4.0.0</modelVersion>
+  <name>leaderboard</name>
+
+  <parent>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <groupId>org.springframework.boot</groupId>
+    <relativePath/>
+    <version>3.3.4</version> <!-- lookup parent from repository -->
+  </parent>
+
   <profiles>
     <profile>
-      <id>unit-tests</id>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <includes>
-                <include>**/dev/agustinventura/leaderboard/unit/**/*Test.java</include>
+                <include>**/*Test.java</include>
               </includes>
             </configuration>
+            <groupId>org.apache.maven.plugins</groupId>
+          </plugin>
+          <plugin>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/*IT.java</exclude>
+                <exclude>**/*AT.java</exclude>
+              </excludes>
+            </configuration>
+            <groupId>org.apache.maven.plugins</groupId>
           </plugin>
         </plugins>
       </build>
+      <id>unit-tests</id>
     </profile>
 
     <profile>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/*Test.java</exclude>
+              </excludes>
+            </configuration>
+            <groupId>org.apache.maven.plugins</groupId>
+          </plugin>
+          <plugin>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/*AT.java</exclude>
+              </excludes>
+              <includes>
+                <include>**/*IT.java</include>
+              </includes>
+            </configuration>
+            <groupId>org.apache.maven.plugins</groupId>
+          </plugin>
+        </plugins>
+      </build>
       <id>integration-tests</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <configuration>
-              <includes>
-                <include>**/dev/agustinventura/leaderboard/integration/**/*IT.java</include>
-              </includes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
 
     <profile>
-      <id>acceptance-tests</id>
       <build>
         <plugins>
           <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/*Test.java</exclude>
+              </excludes>
+            </configuration>
             <groupId>org.apache.maven.plugins</groupId>
+          </plugin>
+          <plugin>
             <artifactId>maven-failsafe-plugin</artifactId>
             <configuration>
+              <excludes>
+                <exclude>**/*IT.java</exclude>
+              </excludes>
               <includes>
-                <include>**/dev/agustinventura/leaderboard/acceptance/**/*AT.java</include>
+                <include>**/*AT.java</include>
               </includes>
             </configuration>
+            <groupId>org.apache.maven.plugins</groupId>
           </plugin>
         </plugins>
       </build>
+      <id>acceptance-tests</id>
     </profile>
   </profiles>
+
+  <properties>
+    <cucumber.version>7.20.0</cucumber.version>
+    <java.version>21</java.version>
+    <org.mapstruct.version>1.6.2</org.mapstruct.version>
+  </properties>
+
+  <version>0.0.1-SNAPSHOT</version>
 </project>

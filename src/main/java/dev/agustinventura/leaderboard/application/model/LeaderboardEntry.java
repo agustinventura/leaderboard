@@ -1,10 +1,10 @@
 package dev.agustinventura.leaderboard.application.model;
 
-public record LeaderboardEntry(String username, String score ) {
+public record LeaderboardEntry(String playerName, String score) {
 
   public LeaderboardEntry {
-    if (username == null || username.trim().isEmpty()) {
-      throw new IllegalArgumentException("Username must not be null or empty");
+    if (playerName == null || playerName.trim().isEmpty()) {
+      throw new IllegalArgumentException("Player name must not be null or empty");
     }
 
     if (score == null) {

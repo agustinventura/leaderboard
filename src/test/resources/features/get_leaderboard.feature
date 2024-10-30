@@ -6,13 +6,13 @@ Feature: Get Leaderboard
 
   Scenario: Retrieve leaderboard with entries
     Given the following leaderboard entries exist:
-      | player        | score      |
-      | player1       | 100        |
-      | player2       | 150        |
-      | player3       | 120        |
+      | playerName | score |
+      | player3    | 100   |
+      | player4    | 150   |
+      | player5    | 120   |
     When I retrieve the leaderboard
     Then I should see the following leaderboard entries:
-      | player        | score      |
-      | player2       | 150        |
-      | player3       | 120        |
-      | player1       | 100        |
+      | playerName | score |
+      | player4    | 150   |
+      | player5    | 120   |
+      | player3    | 100   |

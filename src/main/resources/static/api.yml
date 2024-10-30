@@ -24,8 +24,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/LeaderboardEntry'
+  /v1/leaderboard/entry:
     post:
-      operationId: postLeaderboard
+      operationId: postLeaderboardEntry
       summary: Add a new leaderboard entry
       tags:
         - Leaderboard
@@ -40,13 +41,31 @@ paths:
           description: Leaderboard entry created
         400:
           description: Invalid data
+    put:
+      operationId: putLeaderboardEntry
+      summary: Update an existing leaderboard entry
+      tags:
+        - Leaderboard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaderboardEntry'
+      responses:
+        204:
+          description: Leaderboard entry updated successfully
+        400:
+          description: Invalid leaderboard entry data
+        404:
+          description: Leaderboard entry not found
 
 components:
   schemas:
     LeaderboardEntry:
       type: object
       properties:
-        username:
+        playerName:
           type: string
         score:
           type: integer

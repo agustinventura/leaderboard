@@ -3,6 +3,7 @@ package dev.agustinventura.leaderboard.acceptance;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.agustinventura.leaderboard.application.model.LeaderboardEntry;
+import dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -20,23 +21,23 @@ public class GetLeaderboardSteps {
 
   private RestClient restTestClient;
 
+  private String leaderboard;
+
   @Before
   public void restClient() {
     restTestClient = RestClient.builder().baseUrl("http://localhost:" + port).build();
   }
 
-  private String leaderboard;
-
   @Given("the following leaderboard entries exist:")
   public void theFollowingLeaderboardEntriesExist(List<Map<String, String>> entries) {
     for (Map<String, String> entry : entries) {
-      String username = entry.get("player");
-      String score = entry.get("score");
+      String playerName = String.valueOf(entry.get("playerName"));
+      int score = Integer.parseInt(entry.get("score"));
 
       restTestClient.post()
-          .uri("/v1/leaderboard")
+          .uri("/v1/leaderboard/entry")
           .contentType(MediaType.APPLICATION_JSON)
-          .body(new LeaderboardEntry(username, score))
+          .body(LeaderboardObjectMother.getLeaderboardEntryRESTDTO(playerName, score))
           .retrieve()
           .toBodilessEntity();
     }
@@ -54,14 +55,16 @@ public class GetLeaderboardSteps {
   @Then("I should see the following leaderboard entries:")
   public void iShouldSeeTheFollowingLeaderboardEntries(List<Map<String, String>> expectedEntries) throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
-    List<LeaderboardEntry> actualEntries = objectMapper.readValue(leaderboard, new TypeReference<>() {});
+    List<LeaderboardEntry> actualEntries = objectMapper.readValue(leaderboard, new TypeReference<>() {
+    });
 
-    for (int i = 0; i < expectedEntries.size(); i++) {
-      String expectedUsername = expectedEntries.get(i).get("player");
-      String expectedScore = expectedEntries.get(i).get("score");
+    for (Map<String, String> expectedEntry : expectedEntries) {
+      String expectedUsername = expectedEntry.get("playerName");
+      String expectedScore = expectedEntry.get("score");
 
-      LeaderboardEntry actualEntry = actualEntries.get(i);
-      assert actualEntry.username().equals(expectedUsername) : "Username does not match!";
+      LeaderboardEntry actualEntry =
+          actualEntries.stream().filter(entry -> entry.playerName().equals(expectedUsername)).findFirst().orElseThrow();
+      assert actualEntry.playerName().equals(expectedUsername) : "Username does not match!";
       assert actualEntry.score().equals(expectedScore) : "Score does not match!";
     }
   }
