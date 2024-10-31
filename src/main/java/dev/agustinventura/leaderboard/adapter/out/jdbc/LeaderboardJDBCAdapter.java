@@ -40,7 +40,20 @@ public class LeaderboardJDBCAdapter implements LoadLeaderboardPort, SaveLeaderbo
         updateEntry(entry, savedEntries);
       }
     }
+    for (LeaderboardEntryJDBCDTO entry : savedEntries) {
+      if (savedEntryIsNotInLeaderboard(entry, leaderboard)) {
+        deleteEntry(entry);
+      }
+    }
     return load();
+  }
+
+  private void deleteEntry(LeaderboardEntryJDBCDTO entry) {
+    leaderboardEntryJDBCRepository.delete(entry);
+  }
+
+  private boolean savedEntryIsNotInLeaderboard(LeaderboardEntryJDBCDTO entry, Leaderboard leaderboard) {
+    return leaderboard.entries().stream().noneMatch(leaderboardEntry -> leaderboardEntry.playerName().equalsIgnoreCase(entry.getPlayerName()));
   }
 
   private void createEntry(LeaderboardEntryJDBCDTO leaderboardEntryJDBCDTO) {
@@ -50,7 +63,7 @@ public class LeaderboardJDBCAdapter implements LoadLeaderboardPort, SaveLeaderbo
   private void updateEntry(LeaderboardEntry entry, Set<LeaderboardEntryJDBCDTO> savedEntries) {
     LeaderboardEntryJDBCDTO updatedEntry = leaderboardEntryJDBCDTOMapper.toDTO(entry);
     Optional<LeaderboardEntryJDBCDTO> existingEntry =
-        savedEntries.stream().filter(savedEntry -> savedEntry.getPlayerName().equals(entry.playerName())).findFirst();
+        savedEntries.stream().filter(savedEntry -> savedEntry.getPlayerName().equalsIgnoreCase(entry.playerName())).findFirst();
     if (existingEntry.isPresent()) {
       updatedEntry.setId(existingEntry.get().getId());
       leaderboardEntryJDBCRepository.save(updatedEntry);
@@ -58,6 +71,6 @@ public class LeaderboardJDBCAdapter implements LoadLeaderboardPort, SaveLeaderbo
   }
 
   private boolean entryIsNotInLeaderboard(LeaderboardEntry entry, Set<LeaderboardEntryJDBCDTO> savedEntries) {
-    return savedEntries.stream().noneMatch(savedEntry -> savedEntry.getPlayerName().equals(entry.playerName()));
+    return savedEntries.stream().noneMatch(savedEntry -> savedEntry.getPlayerName().equalsIgnoreCase(entry.playerName()));
   }
 }

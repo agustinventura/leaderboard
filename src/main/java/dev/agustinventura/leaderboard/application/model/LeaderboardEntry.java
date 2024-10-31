@@ -3,7 +3,7 @@ package dev.agustinventura.leaderboard.application.model;
 public record LeaderboardEntry(String playerName, String score) {
 
   public LeaderboardEntry {
-    if (playerName == null || playerName.trim().isEmpty()) {
+    if (playerName == null || playerName.isBlank()) {
       throw new IllegalArgumentException("Player name must not be null or empty");
     }
 

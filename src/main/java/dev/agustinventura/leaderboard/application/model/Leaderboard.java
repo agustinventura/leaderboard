@@ -30,17 +30,21 @@ public record Leaderboard(Set<LeaderboardEntry> entries) {
   }
 
   private boolean containsPlayerName(String playerName) {
-    return entries.stream().anyMatch(entry -> entry.playerName().equals(playerName));
+    return entries.stream().anyMatch(entry -> entry.playerName().equalsIgnoreCase(playerName));
   }
 
   public void update(LeaderboardEntry entry) {
     if (entry != null) {
-      LeaderboardEntry existingEntry = entries.stream().filter(entry1 -> entry1.playerName().equals(entry.playerName())).findFirst()
+      LeaderboardEntry existingEntry = entries.stream().filter(entry1 -> entry1.playerName().equalsIgnoreCase(entry.playerName())).findFirst()
           .orElseThrow(() -> new LeaderboardEntryNotExistsException("Leaderboard entry not exists"));
       LeaderboardEntry updatedEntry = new LeaderboardEntry(existingEntry.playerName(),
           Integer.toString(Integer.parseInt(existingEntry.score()) + Integer.parseInt(entry.score())));
       this.entries.remove(existingEntry);
       this.entries.add(updatedEntry);
     }
+  }
+
+  public void delete(String playerName) {
+    this.entries.removeIf(entry -> entry.playerName().equalsIgnoreCase(playerName));
   }
 }

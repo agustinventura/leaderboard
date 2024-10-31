@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import dev.agustinventura.leaderboard.application.LeaderboardService;
 import dev.agustinventura.leaderboard.application.model.Leaderboard;
 import dev.agustinventura.leaderboard.application.model.LeaderboardEntry;
+import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryDeleteNotAllowedException;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryExistsException;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryNotExistsException;
 import dev.agustinventura.leaderboard.application.ports.out.LoadLeaderboardPort;
@@ -22,6 +23,9 @@ import dev.agustinventura.leaderboard.application.ports.out.SaveLeaderboardPort;
 import dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class LeaderboardServiceTest {
 
@@ -217,5 +221,62 @@ class LeaderboardServiceTest {
     assertThat(
         updatedLeaderboard.entries().stream().filter(entry -> entry.playerName().equals(testLeaderboardEntry.playerName())).findFirst()
             .get().score()).isEqualTo(Integer.toString(newScore));
+  }
+
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"", " "})
+  void givenAnInvalidPlayerNameDeleteShouldDoNothing(String playerName) {
+    Leaderboard testLeaderboard = LeaderboardObjectMother.oneEntryLeaderboard();
+    when(loadLeaderboardPort.load()).thenReturn(testLeaderboard);
+
+    Leaderboard returnedLeaderboard = leaderboardService.delete(playerName, null);
+
+    assertThat(returnedLeaderboard.entries()).hasSize(1);
+  }
+
+
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"", " "})
+  void givenAnInvalidUserNameDeleteShouldThrownLeaderboardEntryDeleteNotAllowedException(String username) {
+    Leaderboard testLeaderboard = LeaderboardObjectMother.oneEntryLeaderboard();
+    when(loadLeaderboardPort.load()).thenReturn(testLeaderboard);
+
+    Leaderboard returnedLeaderboard = leaderboardService.delete("playerName", username);
+
+    assertThat(returnedLeaderboard.entries()).hasSize(1);
+  }
+
+  @Test
+  void givenNotCoincidentPlayerNameAndUserNameDeleteShouldThrowLeaderboardEntryNotAllowedException() {
+    Leaderboard testLeaderboard = LeaderboardObjectMother.oneEntryLeaderboard();
+    when(loadLeaderboardPort.load()).thenReturn(testLeaderboard);
+
+    Throwable thrown = catchThrowable(() -> leaderboardService.delete("playerName", "userName"));
+
+    assertThat(thrown).isInstanceOf(LeaderboardEntryDeleteNotAllowedException.class);
+  }
+
+  @Test
+  void givenCoincidentPlayerNameAndUserNameShouldDeleteLeaderboardEntry() {
+    Leaderboard testLeaderboard = LeaderboardObjectMother.oneEntryLeaderboard();
+    when(loadLeaderboardPort.load()).thenReturn(testLeaderboard);
+    LeaderboardEntry entry = testLeaderboard.entries().iterator().next();
+
+    Leaderboard returnedLeaderboard = leaderboardService.delete(entry.playerName(), entry.playerName());
+
+    assertThat(returnedLeaderboard.entries()).isEmpty();
+  }
+
+  @Test
+  void givenAdminUserNameShouldDeleteLeaderboardEntry() {
+    Leaderboard testLeaderboard = LeaderboardObjectMother.oneEntryLeaderboard();
+    when(loadLeaderboardPort.load()).thenReturn(testLeaderboard);
+    LeaderboardEntry entry = testLeaderboard.entries().iterator().next();
+
+    Leaderboard returnedLeaderboard = leaderboardService.delete(entry.playerName(), "admin");
+
+    assertThat(returnedLeaderboard.entries()).isEmpty();
   }
 }

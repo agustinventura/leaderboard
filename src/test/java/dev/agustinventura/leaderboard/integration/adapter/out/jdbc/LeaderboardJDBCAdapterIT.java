@@ -9,6 +9,7 @@ import dev.agustinventura.leaderboard.adapter.out.jdbc.mapper.LeaderboardEntryJD
 import dev.agustinventura.leaderboard.application.model.Leaderboard;
 import dev.agustinventura.leaderboard.application.model.LeaderboardEntry;
 import dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +75,12 @@ class LeaderboardJDBCAdapterIT {
   }
 
   private void insertTestLeaderboardEntry() {
+    this.insertTestLeaderboardEntry(TEST_PLAYER_NAME, TEST_SCORE);
+  }
+
+  private void insertTestLeaderboardEntry(String playerName, String score) {
     jdbcTemplate.execute(
-        "INSERT INTO leaderboard_entry(player_name, total_score) VALUES ('" + TEST_PLAYER_NAME + "', '" + TEST_SCORE + "')");
+        "INSERT INTO leaderboard_entry(player_name, total_score) VALUES ('" + playerName + "', '" + score + "')");
   }
 
   @Test
@@ -99,5 +104,29 @@ class LeaderboardJDBCAdapterIT {
     Leaderboard savedLeaderboard = adapter.save(loadedLeaderboard);
 
     assertThat(savedLeaderboard.entries()).hasSize(2);
+  }
+
+  @Test
+  void givenANoLongerExistingEntryShouldDeleteIt() {
+    insertTestLeaderboardEntry();
+
+    Leaderboard savedLeaderboard = adapter.save(LeaderboardObjectMother.emptyLeaderboard());
+
+    assertThat(savedLeaderboard.entries()).isEmpty();
+  }
+
+  @Test
+  void givenANewAnExistingAndADeletedEntryShouldCreateUpdateAndDeleteThem() {
+    insertTestLeaderboardEntry("Player 1", "100");
+    insertTestLeaderboardEntry("Player 2", "200");
+
+    LeaderboardEntry modifiedSecondEntry = new LeaderboardEntry("Player 2", "250");
+    LeaderboardEntry thirdEntry = new LeaderboardEntry("Player 3", "300");
+    Leaderboard modifiedLeaderboard = new Leaderboard(Set.of(modifiedSecondEntry, thirdEntry));
+
+    Leaderboard savedLeaderboard = adapter.save(modifiedLeaderboard);
+
+    assertThat(savedLeaderboard.entries()).hasSize(2);
+    assertThat(savedLeaderboard.entries()).contains(modifiedSecondEntry, thirdEntry);
   }
 }

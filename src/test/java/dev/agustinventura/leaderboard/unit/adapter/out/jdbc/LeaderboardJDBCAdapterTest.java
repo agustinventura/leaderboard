@@ -13,6 +13,7 @@ import dev.agustinventura.leaderboard.application.model.LeaderboardEntry;
 import dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,5 +78,42 @@ class LeaderboardJDBCAdapterTest {
 
     assertThat(savedLeaderboard.entries()).hasSize(1);
     assertThat(savedLeaderboard.entries()).contains(testEntry);
+  }
+
+  @Test
+  void givenANoLongerExistingEntryShouldDeleteIt() {
+    Leaderboard testLeaderboard = LeaderboardObjectMother.emptyLeaderboard();
+    LeaderboardEntry testEntry = LeaderboardObjectMother.testLeaderboardEntry();
+    LeaderboardEntryJDBCDTO testEntryJDBCDTO = new LeaderboardEntryJDBCDTO(UUID.randomUUID(), testEntry.playerName(), testEntry.score());
+    when(leaderboardEntryJDBCRepository.findAll()).thenReturn(List.of(testEntryJDBCDTO)).thenReturn(List.of());
+
+    Leaderboard savedLeaderboard = leaderboardJDBCAdapter.save(testLeaderboard);
+
+    assertThat(savedLeaderboard.entries()).isEmpty();
+  }
+
+  @Test
+  void givenANewAnExistingAndADeletedEntryShouldCreateUpdateAndDeleteThem() {
+    LeaderboardEntry firstEntry = new LeaderboardEntry("Player 1", "100");
+    LeaderboardEntry secondEntry = new LeaderboardEntry("Player 2", "200");
+    LeaderboardEntry thirdEntry = new LeaderboardEntry("Player 3", "300");
+    LeaderboardEntry modifiedSecondEntry = new LeaderboardEntry("Player 2", "250");
+
+    Leaderboard testLeaderboard = new Leaderboard(Set.of(modifiedSecondEntry, thirdEntry));
+    LeaderboardEntryJDBCDTO firstEntryJDBCDTO = leaderboardEntryJDBCDTOMapper.toDTO(firstEntry);
+    firstEntryJDBCDTO.setId(UUID.randomUUID());
+    LeaderboardEntryJDBCDTO secondEntryJDBCDTO = leaderboardEntryJDBCDTOMapper.toDTO(secondEntry);
+    secondEntryJDBCDTO.setId(UUID.randomUUID());
+    LeaderboardEntryJDBCDTO thirdEntryJDBCDTO = leaderboardEntryJDBCDTOMapper.toDTO(thirdEntry);
+    thirdEntryJDBCDTO.setId(UUID.randomUUID());
+    LeaderboardEntryJDBCDTO modifiedSecondEntryJDBCDTO = leaderboardEntryJDBCDTOMapper.toDTO(modifiedSecondEntry);
+    modifiedSecondEntryJDBCDTO.setId(UUID.randomUUID());
+
+    when(leaderboardEntryJDBCRepository.findAll()).thenReturn(List.of(firstEntryJDBCDTO, secondEntryJDBCDTO)).thenReturn(List.of(modifiedSecondEntryJDBCDTO, thirdEntryJDBCDTO));
+
+    Leaderboard modifiedLeaderboard = leaderboardJDBCAdapter.save(testLeaderboard);
+
+    assertThat(modifiedLeaderboard.entries()).hasSize(2);
+    assertThat(modifiedLeaderboard.entries()).contains(modifiedSecondEntry, thirdEntry);
   }
 }

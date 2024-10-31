@@ -3,9 +3,11 @@ package dev.agustinventura.leaderboard.adapter.in.rest;
 import dev.agustinventura.leaderboard.adapter.in.rest.dto.LeaderboardEntryRESTDTO;
 import dev.agustinventura.leaderboard.adapter.in.rest.mapper.LeaderboardEntryRESTDTOMapper;
 import dev.agustinventura.leaderboard.application.model.Leaderboard;
+import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryDeleteNotAllowedException;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryExistsException;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryNotExistsException;
 import dev.agustinventura.leaderboard.application.ports.in.CreateLeaderboardEntryUseCase;
+import dev.agustinventura.leaderboard.application.ports.in.DeleteLeaderboardEntryUseCase;
 import dev.agustinventura.leaderboard.application.ports.in.GetLeaderboardUseCase;
 import dev.agustinventura.leaderboard.application.ports.in.UpdateLeaderboardEntryUseCase;
 import java.net.URI;
@@ -25,14 +27,17 @@ public class LeaderboardRESTAdapter implements V1Api {
 
   private final UpdateLeaderboardEntryUseCase updateLeaderboardEntryUseCase;
 
+  private final DeleteLeaderboardEntryUseCase deleteLeaderboardEntryUseCase;
+
   private final LeaderboardEntryRESTDTOMapper leaderboardEntryRESTDTOMapper;
 
   public LeaderboardRESTAdapter(GetLeaderboardUseCase getLeaderboardUseCase, CreateLeaderboardEntryUseCase createLeaderboardEntryUseCase,
-      UpdateLeaderboardEntryUseCase updateLeaderboardEntryUseCase,
+      UpdateLeaderboardEntryUseCase updateLeaderboardEntryUseCase, DeleteLeaderboardEntryUseCase deleteLeaderboardEntryUseCase,
       LeaderboardEntryRESTDTOMapper leaderboardEntryRESTDTOMapper) {
     this.getLeaderboardUseCase = getLeaderboardUseCase;
     this.createLeaderboardEntryUseCase = createLeaderboardEntryUseCase;
     this.updateLeaderboardEntryUseCase = updateLeaderboardEntryUseCase;
+    this.deleteLeaderboardEntryUseCase = deleteLeaderboardEntryUseCase;
     this.leaderboardEntryRESTDTOMapper = leaderboardEntryRESTDTOMapper;
   }
 
@@ -59,6 +64,20 @@ public class LeaderboardRESTAdapter implements V1Api {
     return ResponseEntity.accepted().build();
   }
 
+  @Override
+  public ResponseEntity<Void> deleteLeaderboardEntry(String playerName, String username) {
+    if (isPresent(username)) {
+      deleteLeaderboardEntryUseCase.delete(playerName, username);
+      return ResponseEntity.noContent().build();
+    } else {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+  }
+
+  private boolean isPresent(String userName) {
+    return userName != null && !userName.isBlank();
+  }
+
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
@@ -72,5 +91,10 @@ public class LeaderboardRESTAdapter implements V1Api {
   @ExceptionHandler(LeaderboardEntryNotExistsException.class)
   public ResponseEntity<String> handleLeaderboardEntryNotExistsException(LeaderboardEntryNotExistsException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+  }
+
+  @ExceptionHandler(LeaderboardEntryDeleteNotAllowedException.class)
+  public ResponseEntity<String> handleLeaderboardEntryDeleteNotAllowedException(LeaderboardEntryDeleteNotAllowedException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
   }
 }

@@ -2,6 +2,7 @@ package dev.agustinventura.leaderboard.integration.adapter.in.rest;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -16,9 +17,11 @@ import dev.agustinventura.leaderboard.adapter.in.rest.dto.LeaderboardEntryRESTDT
 import dev.agustinventura.leaderboard.adapter.in.rest.mapper.LeaderboardEntryRESTDTOMapperImpl;
 import dev.agustinventura.leaderboard.application.model.Leaderboard;
 import dev.agustinventura.leaderboard.application.model.LeaderboardEntry;
+import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryDeleteNotAllowedException;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryExistsException;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryNotExistsException;
 import dev.agustinventura.leaderboard.application.ports.in.CreateLeaderboardEntryUseCase;
+import dev.agustinventura.leaderboard.application.ports.in.DeleteLeaderboardEntryUseCase;
 import dev.agustinventura.leaderboard.application.ports.in.GetLeaderboardUseCase;
 import dev.agustinventura.leaderboard.application.ports.in.UpdateLeaderboardEntryUseCase;
 import dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother;
@@ -49,6 +52,9 @@ class LeaderboardRESTAdapterIT {
 
   @MockBean
   private UpdateLeaderboardEntryUseCase updateLeaderboardEntryUseCase;
+
+  @MockBean
+  private DeleteLeaderboardEntryUseCase deleteLeaderboardEntryUseCase;
 
   @Test
   void givenNoEntriesShouldReturnEmptyList() throws Exception {
@@ -148,5 +154,57 @@ class LeaderboardRESTAdapterIT {
                 .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
         )
         .andExpect(status().isAccepted());
+  }
+
+  @Test
+  void givenBlankXUserNameHeaderShouldReturnUnauthorized() throws Exception {
+    this.mockMvc
+        .perform(
+            delete("/v1/leaderboard/entry/playerName")
+                .header("X-USERNAME", "")
+        )
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void givenNoAdminOrCoincidentPlayerNameXUserNameHeaderShouldReturnForbidden() throws Exception {
+    when(deleteLeaderboardEntryUseCase.delete(any(), any())).thenThrow(LeaderboardEntryDeleteNotAllowedException.class);
+    this.mockMvc
+        .perform(
+            delete("/v1/leaderboard/entry/playerName")
+                .header("X-USERNAME", "player")
+        )
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void givenNoExistingPlayerNameShouldReturnNotFound() throws Exception {
+    when(deleteLeaderboardEntryUseCase.delete(any(), any())).thenThrow(LeaderboardEntryNotExistsException.class);
+    this.mockMvc
+        .perform(
+            delete("/v1/leaderboard/entry/playerName")
+                .header("X-USERNAME", "playerName")
+        )
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void givenAdminXUserNameHeaderShouldReturnNoContent() throws Exception {
+    this.mockMvc
+        .perform(
+            delete("/v1/leaderboard/entry/playerName")
+                .header("X-USERNAME", "playerName")
+        )
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  void givenCoincidentPlayerNameAndXUserNameHeaderShouldReturnNoContent() throws Exception {
+    this.mockMvc
+        .perform(
+            delete("/v1/leaderboard/entry/playerName")
+                .header("X-USERNAME", "playerName")
+        )
+        .andExpect(status().isNoContent());
   }
 }

@@ -63,9 +63,9 @@ public class GetLeaderboardSteps {
       String expectedScore = expectedEntry.get("score");
 
       LeaderboardEntry actualEntry =
-          actualEntries.stream().filter(entry -> entry.playerName().equals(expectedUsername)).findFirst().orElseThrow();
-      assert actualEntry.playerName().equals(expectedUsername) : "Username does not match!";
-      assert actualEntry.score().equals(expectedScore) : "Score does not match!";
+          actualEntries.stream().filter(entry -> entry.playerName().equalsIgnoreCase(expectedUsername)).findFirst().orElseThrow();
+      assert actualEntry.playerName().equalsIgnoreCase(expectedUsername) : "Username does not match!";
+      assert actualEntry.score().equalsIgnoreCase(expectedScore) : "Score does not match!";
     }
   }
 }
