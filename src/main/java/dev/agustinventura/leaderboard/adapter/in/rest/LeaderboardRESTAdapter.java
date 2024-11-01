@@ -6,6 +6,7 @@ import dev.agustinventura.leaderboard.application.model.Leaderboard;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryDeleteNotAllowedException;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryExistsException;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryNotExistsException;
+import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryUpdateNotAllowedException;
 import dev.agustinventura.leaderboard.application.ports.in.CreateLeaderboardEntryUseCase;
 import dev.agustinventura.leaderboard.application.ports.in.DeleteLeaderboardEntryUseCase;
 import dev.agustinventura.leaderboard.application.ports.in.GetLeaderboardUseCase;
@@ -59,15 +60,19 @@ public class LeaderboardRESTAdapter implements V1Api {
   }
 
   @Override
-  public ResponseEntity<Void> putLeaderboardEntry(LeaderboardEntryRESTDTO leaderboardEntryRESTDTO) {
-    updateLeaderboardEntryUseCase.update(leaderboardEntryRESTDTO.getPlayerName(), String.valueOf(leaderboardEntryRESTDTO.getScore()));
-    return ResponseEntity.accepted().build();
+  public ResponseEntity<Void> putLeaderboardEntry(String playerName, String userName, LeaderboardEntryRESTDTO leaderboardEntryRESTDTO) {
+    if (isPresent(userName)) {
+      updateLeaderboardEntryUseCase.update(leaderboardEntryRESTDTO.getPlayerName(), String.valueOf(leaderboardEntryRESTDTO.getScore()), userName);
+      return ResponseEntity.accepted().build();
+    } else {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
   }
 
   @Override
-  public ResponseEntity<Void> deleteLeaderboardEntry(String playerName, String username) {
-    if (isPresent(username)) {
-      deleteLeaderboardEntryUseCase.delete(playerName, username);
+  public ResponseEntity<Void> deleteLeaderboardEntry(String playerName, String userName) {
+    if (isPresent(userName)) {
+      deleteLeaderboardEntryUseCase.delete(playerName, userName);
       return ResponseEntity.noContent().build();
     } else {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -95,6 +100,11 @@ public class LeaderboardRESTAdapter implements V1Api {
 
   @ExceptionHandler(LeaderboardEntryDeleteNotAllowedException.class)
   public ResponseEntity<String> handleLeaderboardEntryDeleteNotAllowedException(LeaderboardEntryDeleteNotAllowedException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+  }
+
+  @ExceptionHandler(LeaderboardEntryUpdateNotAllowedException.class)
+  public ResponseEntity<String> handleLeaderboardEntryUpdateNotAllowedException(LeaderboardEntryUpdateNotAllowedException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
   }
 }

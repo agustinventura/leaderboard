@@ -4,5 +4,5 @@ import dev.agustinventura.leaderboard.application.model.Leaderboard;
 
 public interface UpdateLeaderboardEntryUseCase {
 
-  Leaderboard update(String playerName, String score);
+  Leaderboard update(String playerName, String score, String userName);
 }

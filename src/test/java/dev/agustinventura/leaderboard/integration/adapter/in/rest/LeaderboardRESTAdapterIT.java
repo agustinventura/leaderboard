@@ -20,6 +20,7 @@ import dev.agustinventura.leaderboard.application.model.LeaderboardEntry;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryDeleteNotAllowedException;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryExistsException;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryNotExistsException;
+import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryUpdateNotAllowedException;
 import dev.agustinventura.leaderboard.application.ports.in.CreateLeaderboardEntryUseCase;
 import dev.agustinventura.leaderboard.application.ports.in.DeleteLeaderboardEntryUseCase;
 import dev.agustinventura.leaderboard.application.ports.in.GetLeaderboardUseCase;
@@ -116,13 +117,27 @@ class LeaderboardRESTAdapterIT {
   }
 
   @Test
+  void givenBlankXUserNameHeaderUpdateShouldReturnUnauthorized() throws Exception {
+    LeaderboardEntryRESTDTO leaderboardEntryDTO = LeaderboardObjectMother.getLeaderboardEntryRESTDTO();
+    this.mockMvc
+        .perform(
+            put("/v1/leaderboard/entry/{playerName}", leaderboardEntryDTO.getPlayerName())
+                .header("X-USERNAME", "")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
+        )
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
   void givenANonExistingEntryUpdateShouldReturnNotFound() throws Exception {
     LeaderboardEntryRESTDTO leaderboardEntryDTO = LeaderboardObjectMother.getLeaderboardEntryRESTDTO();
-    when(updateLeaderboardEntryUseCase.update(any(), any())).thenThrow(LeaderboardEntryNotExistsException.class);
+    when(updateLeaderboardEntryUseCase.update(any(), any(), any())).thenThrow(LeaderboardEntryNotExistsException.class);
 
     this.mockMvc
         .perform(
-            put("/v1/leaderboard/entry")
+            put("/v1/leaderboard/entry/{playerName}", leaderboardEntryDTO.getPlayerName())
+                .header("X-USERNAME", leaderboardEntryDTO.getPlayerName())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
         )
@@ -132,11 +147,12 @@ class LeaderboardRESTAdapterIT {
   @Test
   void givenAnInvalidEntryUpdateShouldReturnBadRequest() throws Exception {
     LeaderboardEntryRESTDTO leaderboardEntryDTO = LeaderboardObjectMother.getLeaderboardEntryRESTDTO();
-    when(updateLeaderboardEntryUseCase.update(any(), any())).thenThrow(IllegalArgumentException.class);
+    when(updateLeaderboardEntryUseCase.update(any(), any(), any())).thenThrow(IllegalArgumentException.class);
 
     this.mockMvc
         .perform(
-            put("/v1/leaderboard/entry")
+            put("/v1/leaderboard/entry/{playerName}", leaderboardEntryDTO.getPlayerName())
+                .header("X-USERNAME", leaderboardEntryDTO.getPlayerName())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
         )
@@ -144,12 +160,28 @@ class LeaderboardRESTAdapterIT {
   }
 
   @Test
-  void givenAValidEntryUpdateShouldReturnAccepted() throws Exception {
+  void givenNoAdminOrCoincidentPlayerNameXUserNameHeaderUpdateShouldReturnForbidden() throws Exception {
+    LeaderboardEntryRESTDTO leaderboardEntryDTO = LeaderboardObjectMother.getLeaderboardEntryRESTDTO();
+    when(updateLeaderboardEntryUseCase.update(any(), any(), any())).thenThrow(LeaderboardEntryUpdateNotAllowedException.class);
+
+    this.mockMvc
+        .perform(
+            put("/v1/leaderboard/entry/{playerName}", leaderboardEntryDTO.getPlayerName())
+                .header("X-USERNAME", "unauthorizedPlayer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
+        )
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void givenAdminXUserNameHeaderAValidEntryUpdateShouldReturnAccepted() throws Exception {
     LeaderboardEntryRESTDTO leaderboardEntryDTO = LeaderboardObjectMother.getLeaderboardEntryRESTDTO();
 
     this.mockMvc
         .perform(
-            put("/v1/leaderboard/entry")
+            put("/v1/leaderboard/entry/{playerName}", leaderboardEntryDTO.getPlayerName())
+                .header("X-USERNAME", "admin")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
         )
@@ -157,7 +189,21 @@ class LeaderboardRESTAdapterIT {
   }
 
   @Test
-  void givenBlankXUserNameHeaderShouldReturnUnauthorized() throws Exception {
+  void givenCoincidentPlayerNameAndXUserNameHeaderAValidEntryUpdateShouldReturnAccepted() throws Exception {
+    LeaderboardEntryRESTDTO leaderboardEntryDTO = LeaderboardObjectMother.getLeaderboardEntryRESTDTO();
+
+    this.mockMvc
+        .perform(
+            put("/v1/leaderboard/entry/{playerName}", leaderboardEntryDTO.getPlayerName())
+                .header("X-USERNAME", leaderboardEntryDTO.getPlayerName())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
+        )
+        .andExpect(status().isAccepted());
+  }
+
+  @Test
+  void givenBlankXUserNameHeaderDeleteShouldReturnUnauthorized() throws Exception {
     this.mockMvc
         .perform(
             delete("/v1/leaderboard/entry/playerName")
@@ -167,7 +213,7 @@ class LeaderboardRESTAdapterIT {
   }
 
   @Test
-  void givenNoAdminOrCoincidentPlayerNameXUserNameHeaderShouldReturnForbidden() throws Exception {
+  void givenNoAdminOrCoincidentPlayerNameXUserNameHeaderDeleteShouldReturnForbidden() throws Exception {
     when(deleteLeaderboardEntryUseCase.delete(any(), any())).thenThrow(LeaderboardEntryDeleteNotAllowedException.class);
     this.mockMvc
         .perform(
@@ -178,7 +224,7 @@ class LeaderboardRESTAdapterIT {
   }
 
   @Test
-  void givenNoExistingPlayerNameShouldReturnNotFound() throws Exception {
+  void givenNoExistingPlayerNameDeleteShouldReturnNotFound() throws Exception {
     when(deleteLeaderboardEntryUseCase.delete(any(), any())).thenThrow(LeaderboardEntryNotExistsException.class);
     this.mockMvc
         .perform(
@@ -189,7 +235,7 @@ class LeaderboardRESTAdapterIT {
   }
 
   @Test
-  void givenAdminXUserNameHeaderShouldReturnNoContent() throws Exception {
+  void givenAdminXUserNameHeaderDeleteShouldReturnNoContent() throws Exception {
     this.mockMvc
         .perform(
             delete("/v1/leaderboard/entry/playerName")
@@ -199,7 +245,7 @@ class LeaderboardRESTAdapterIT {
   }
 
   @Test
-  void givenCoincidentPlayerNameAndXUserNameHeaderShouldReturnNoContent() throws Exception {
+  void givenCoincidentPlayerNameAndXUserNameHeaderDeleteShouldReturnNoContent() throws Exception {
     this.mockMvc
         .perform(
             delete("/v1/leaderboard/entry/playerName")

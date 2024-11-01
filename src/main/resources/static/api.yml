@@ -41,11 +41,26 @@ paths:
           description: Leaderboard entry created
         400:
           description: Invalid data
+  /v1/leaderboard/entry/{playerName}:
     put:
       operationId: putLeaderboardEntry
       summary: Update an existing leaderboard entry
       tags:
         - Leaderboard
+      parameters:
+        - name: playerName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The playerName of the leaderboard entry to delete.
+        - name: X-USERNAME
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            Username making the request. Must match the `playerName` being deleted or be `admin`.
       requestBody:
         required: true
         content:
@@ -57,9 +72,12 @@ paths:
           description: Leaderboard entry updated successfully
         400:
           description: Invalid leaderboard entry data
+        401:
+          description: Unauthorized - Blank X-USERNAME
+        403:
+          description: Forbidden - X-USERNAME does not match the playerName or `admin`
         404:
           description: Leaderboard entry not found
-  /v1/leaderboard/entry/{playerName}:
     delete:
       operationId: deleteLeaderboardEntry
       summary: Delete a leaderboard entry

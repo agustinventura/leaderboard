@@ -3,6 +3,7 @@ package dev.agustinventura.leaderboard.application;
 import dev.agustinventura.leaderboard.application.model.Leaderboard;
 import dev.agustinventura.leaderboard.application.model.LeaderboardEntry;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryDeleteNotAllowedException;
+import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryUpdateNotAllowedException;
 import dev.agustinventura.leaderboard.application.ports.in.CreateLeaderboardEntryUseCase;
 import dev.agustinventura.leaderboard.application.ports.in.DeleteLeaderboardEntryUseCase;
 import dev.agustinventura.leaderboard.application.ports.in.GetLeaderboardUseCase;
@@ -36,11 +37,37 @@ public class LeaderboardService implements GetLeaderboardUseCase, CreateLeaderbo
   }
 
   @Override
-  public Leaderboard update(String playerName, String score) {
-    LeaderboardEntry leaderboardEntry = createLeaderboard(playerName, score);
+  public Leaderboard update(String playerName, String score, String userName) {
     Leaderboard leaderboard = getLeaderboard();
-    leaderboard.update(leaderboardEntry);
-    return saveLeaderboardPort.save(leaderboard);
+    LeaderboardEntry leaderboardEntry = createLeaderboard(playerName, score);
+    if (isAuthorized(leaderboardEntry, userName)) {
+      leaderboard.update(leaderboardEntry);
+      leaderboard = saveLeaderboardPort.save(leaderboard);
+    } else {
+      throw new LeaderboardEntryUpdateNotAllowedException(
+          "User %s is not allowed to update player %s entry".formatted(userName, playerName));
+    }
+    return leaderboard;
+  }
+
+  private boolean isAuthorized(LeaderboardEntry leaderboardEntry, String userName) {
+    return userName != null && (userName.equalsIgnoreCase("ADMIN") || leaderboardEntry.playerName().equalsIgnoreCase(userName));
+  }
+
+  @Override
+  public Leaderboard delete(String playerName, String userName) {
+    Leaderboard leaderboard = getLeaderboard();
+    if (playerName != null && !playerName.isBlank() && userName != null && !userName.isBlank()) {
+      if (userName.equalsIgnoreCase(playerName) || userName.equalsIgnoreCase("ADMIN")) {
+        leaderboard.delete(playerName);
+        leaderboard = saveLeaderboardPort.save(leaderboard);
+      } else {
+        throw new LeaderboardEntryDeleteNotAllowedException(
+            "User %s is not allowed to delete player %s entry".formatted(userName, playerName));
+      }
+
+    }
+    return leaderboard;
   }
 
   private LeaderboardEntry createLeaderboard(String playerName, String score) {
@@ -68,21 +95,5 @@ public class LeaderboardService implements GetLeaderboardUseCase, CreateLeaderbo
     } catch (NumberFormatException e) {
       throw new IllegalArgumentException("Score must be a valid integer");
     }
-  }
-
-  @Override
-  public Leaderboard delete(String playerName, String userName) {
-    Leaderboard leaderboard = getLeaderboard();
-    if (playerName != null && !playerName.isBlank() && userName != null && !userName.isBlank()) {
-      if (userName.equalsIgnoreCase(playerName) || userName.equalsIgnoreCase("ADMIN")) {
-        leaderboard.delete(playerName);
-        saveLeaderboardPort.save(leaderboard);
-      } else {
-        throw new LeaderboardEntryDeleteNotAllowedException(
-            "User %s is not allowed to delete player %s entry".formatted(userName, playerName));
-      }
-
-    }
-    return leaderboard;
   }
 }

@@ -1,9 +1,5 @@
 package dev.agustinventura.leaderboard.unit.application;
 
-import static dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother.BLANK_STRING;
-import static dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother.EMPTY_STRING;
-import static dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother.INVALID_FORMAT_SCORE;
-import static dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother.LOWER_THAN_ALLOWED_SCORE;
 import static dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother.TEST_PLAYERNAME;
 import static dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother.TEST_SCORE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,6 +14,7 @@ import dev.agustinventura.leaderboard.application.model.LeaderboardEntry;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryDeleteNotAllowedException;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryExistsException;
 import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryNotExistsException;
+import dev.agustinventura.leaderboard.application.model.exceptions.LeaderboardEntryUpdateNotAllowedException;
 import dev.agustinventura.leaderboard.application.ports.out.LoadLeaderboardPort;
 import dev.agustinventura.leaderboard.application.ports.out.SaveLeaderboardPort;
 import dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother;
@@ -61,58 +58,20 @@ class LeaderboardServiceTest {
     assertThat(returnedLeaderboard).isEqualTo(testLeaderboard);
   }
 
-  @Test
-  void givenANullPlayerNameCreateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.create(null, TEST_SCORE));
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"", " "})
+  void givenAnInvalidPlayerNameCreateShouldThrowIllegalArgumentException(String playerName) {
+    Throwable thrown = catchThrowable(() -> leaderboardService.create(playerName, TEST_SCORE));
 
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
   }
 
-  @Test
-  void givenAnEmptyPlayerNameCreateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.create(EMPTY_STRING, TEST_SCORE));
-
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void givenABlankPlayerNameCreateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.create(BLANK_STRING, TEST_SCORE));
-
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void givenANullScoreCreateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.create(TEST_PLAYERNAME, null));
-
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void givenAnEmptyScoreCreateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.create(TEST_PLAYERNAME, EMPTY_STRING));
-
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void givenABlankScoreCreateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.create(TEST_PLAYERNAME, BLANK_STRING));
-
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void givenANonNumberScoreCreateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.create(TEST_PLAYERNAME, INVALID_FORMAT_SCORE));
-
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void givenALowerThanAllowedScoreCreateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.create(TEST_PLAYERNAME, LOWER_THAN_ALLOWED_SCORE));
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"", " ", "not_number", "0"})
+  void givenAnInvalidScoreCreateShouldThrowIllegalArgumentException(String score) {
+    Throwable thrown = catchThrowable(() -> leaderboardService.create(TEST_PLAYERNAME, score));
 
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
   }
@@ -140,75 +99,46 @@ class LeaderboardServiceTest {
     assertThat(updatedLeaderboard.entries()).contains(testLeaderboardEntry);
   }
 
-  @Test
-  void givenANullPlayerNameUpdateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.update(null, TEST_SCORE));
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"", " "})
+  void givenAnInvalidPlayerNameUpdateShouldThrowIllegalArgumentException(String playerName) {
+    Throwable thrown = catchThrowable(() -> leaderboardService.update(playerName, TEST_SCORE, "ADMIN"));
 
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
   }
 
-  @Test
-  void givenAnEmptyPlayerNameUpdateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.update(EMPTY_STRING, TEST_SCORE));
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"", " ", "not_number", "0"})
+  void givenAnInvalidScoreUpdateShouldThrowIllegalArgumentException(String score) {
+    Throwable thrown = catchThrowable(() -> leaderboardService.update(TEST_PLAYERNAME, score, "ADMIN"));
 
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
   }
 
-  @Test
-  void givenABlankPlayerNameUpdateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.update(BLANK_STRING, TEST_SCORE));
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"", " "})
+  void givenAnInvalidUserNameUpdateShouldThrowLeaderboardEntryUpdateNotAllowedException(String userName) {
+    Throwable thrown = catchThrowable(() -> leaderboardService.update(TEST_PLAYERNAME, TEST_SCORE, userName));
 
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
+    assertThat(thrown).isInstanceOf(LeaderboardEntryUpdateNotAllowedException.class);
   }
 
   @Test
-  void givenANullScoreUpdateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.update(TEST_PLAYERNAME, null));
-
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void givenAnEmptyScoreUpdateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.update(TEST_PLAYERNAME, EMPTY_STRING));
-
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void givenABlankScoreUpdateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.update(TEST_PLAYERNAME, BLANK_STRING));
-
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void givenANonNumberScoreUpdateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.update(TEST_PLAYERNAME, INVALID_FORMAT_SCORE));
-
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void givenALowerThanAllowedScoreUpdateShouldThrowIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> leaderboardService.update(TEST_PLAYERNAME, LOWER_THAN_ALLOWED_SCORE));
-
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void givenANonExistingPlayerNameCreateShouldThrowLeaderboardEntryNotExistsException() {
+  void givenANonExistingPlayerNameUpdateShouldThrowLeaderboardEntryNotExistsException() {
     Leaderboard leaderboard = LeaderboardObjectMother.emptyLeaderboard();
     LeaderboardEntry entry = LeaderboardObjectMother.testLeaderboardEntry();
     when(loadLeaderboardPort.load()).thenReturn(leaderboard);
 
-    Throwable thrown = catchThrowable(() -> leaderboardService.update(entry.playerName(), entry.score()));
+    Throwable thrown = catchThrowable(() -> leaderboardService.update(entry.playerName(), entry.score(), "ADMIN"));
 
     assertThat(thrown).isInstanceOf(LeaderboardEntryNotExistsException.class);
   }
 
   @Test
-  void givenAnExistingPlayerNameAndABiggerThanZeroScoreShouldReturnLeaderboardWithUpdatedEntry() {
+  void givenAnExistingPlayerNameAndABiggerThanZeroScoreAndAdminUserNameUpdateShouldReturnLeaderboardWithUpdatedEntry() {
     Leaderboard leaderboard = LeaderboardObjectMother.twoEntriesLeaderboard();
     LeaderboardEntry testLeaderboardEntry = leaderboard.entries().iterator().next();
     String scoreToAdd = Integer.toString(1);
@@ -216,7 +146,24 @@ class LeaderboardServiceTest {
     when(loadLeaderboardPort.load()).thenReturn(leaderboard);
     when(saveLeaderboardPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    Leaderboard updatedLeaderboard = leaderboardService.update(testLeaderboardEntry.playerName(), scoreToAdd);
+    Leaderboard updatedLeaderboard = leaderboardService.update(testLeaderboardEntry.playerName(), scoreToAdd, "ADMIN");
+
+    assertThat(
+        updatedLeaderboard.entries().stream().filter(entry -> entry.playerName().equals(testLeaderboardEntry.playerName())).findFirst()
+            .get().score()).isEqualTo(Integer.toString(newScore));
+  }
+
+  @Test
+  void givenAnExistingPlayerNameAndABiggerThanZeroScoreAndCoincidentUserNameUpdateShouldReturnLeaderboardWithUpdatedEntry() {
+    Leaderboard leaderboard = LeaderboardObjectMother.twoEntriesLeaderboard();
+    LeaderboardEntry testLeaderboardEntry = leaderboard.entries().iterator().next();
+    String scoreToAdd = Integer.toString(1);
+    int newScore = Integer.parseInt(testLeaderboardEntry.score()) + Integer.parseInt(scoreToAdd);
+    when(loadLeaderboardPort.load()).thenReturn(leaderboard);
+    when(saveLeaderboardPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    Leaderboard updatedLeaderboard =
+        leaderboardService.update(testLeaderboardEntry.playerName(), scoreToAdd, testLeaderboardEntry.playerName());
 
     assertThat(
         updatedLeaderboard.entries().stream().filter(entry -> entry.playerName().equals(testLeaderboardEntry.playerName())).findFirst()
@@ -234,7 +181,6 @@ class LeaderboardServiceTest {
 
     assertThat(returnedLeaderboard.entries()).hasSize(1);
   }
-
 
   @ParameterizedTest
   @NullSource
@@ -262,6 +208,7 @@ class LeaderboardServiceTest {
   void givenCoincidentPlayerNameAndUserNameShouldDeleteLeaderboardEntry() {
     Leaderboard testLeaderboard = LeaderboardObjectMother.oneEntryLeaderboard();
     when(loadLeaderboardPort.load()).thenReturn(testLeaderboard);
+    when(saveLeaderboardPort.save(any())).thenReturn(LeaderboardObjectMother.emptyLeaderboard());
     LeaderboardEntry entry = testLeaderboard.entries().iterator().next();
 
     Leaderboard returnedLeaderboard = leaderboardService.delete(entry.playerName(), entry.playerName());
@@ -273,6 +220,7 @@ class LeaderboardServiceTest {
   void givenAdminUserNameShouldDeleteLeaderboardEntry() {
     Leaderboard testLeaderboard = LeaderboardObjectMother.oneEntryLeaderboard();
     when(loadLeaderboardPort.load()).thenReturn(testLeaderboard);
+    when(saveLeaderboardPort.save(any())).thenReturn(LeaderboardObjectMother.emptyLeaderboard());
     LeaderboardEntry entry = testLeaderboard.entries().iterator().next();
 
     Leaderboard returnedLeaderboard = leaderboardService.delete(entry.playerName(), "admin");
