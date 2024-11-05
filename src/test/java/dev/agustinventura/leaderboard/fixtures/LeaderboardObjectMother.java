@@ -10,15 +10,13 @@ public class LeaderboardObjectMother {
 
   public static final String TEST_SCORE = "1";
 
-  public static final String EMPTY_STRING = "";
-
-  public static final String BLANK_STRING = " ";
-
   public static final String TEST_PLAYERNAME = "test_playername";
 
-  public static final String INVALID_FORMAT_SCORE = "test";
+  public static final String NOT_EXISTING_PLAYERNAME = "not_exists";
 
-  public static final String LOWER_THAN_ALLOWED_SCORE = "0";
+  public static final String USERNAME_HEADER = "X-USERNAME";
+
+  public static final String ADMIN_USERNAME = "ADMIN";
 
   public static @NotNull Leaderboard emptyLeaderboard() {
     return new Leaderboard(Set.of());

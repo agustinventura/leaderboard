@@ -134,6 +134,10 @@
       <groupId>org.flywaydb</groupId>
     </dependency>
     <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
+    </dependency>
+    <dependency>
       <artifactId>spring-boot-devtools</artifactId>
       <groupId>org.springframework.boot</groupId>
       <optional>true</optional>
@@ -191,6 +195,22 @@
     <dependency>
       <artifactId>postgresql</artifactId>
       <groupId>org.testcontainers</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>kafka</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>4.2.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

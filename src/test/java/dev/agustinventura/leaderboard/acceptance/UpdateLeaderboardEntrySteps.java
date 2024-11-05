@@ -32,7 +32,7 @@ public class UpdateLeaderboardEntrySteps {
   public void iUpdateALeaderboardEntry(String playerName, int score, String userName) {
     responseStatus = restTestClient.put()
         .uri("/v1/leaderboard/entry/{playerName}", playerName)
-        .header("X-USERNAME", userName)
+        .header(LeaderboardObjectMother.USERNAME_HEADER, userName)
         .contentType(MediaType.APPLICATION_JSON)
         .body(LeaderboardObjectMother.getLeaderboardEntryRESTDTO(playerName, score))
         .retrieve()

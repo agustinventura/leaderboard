@@ -30,7 +30,7 @@ public class LeaderboardService implements GetLeaderboardUseCase, CreateLeaderbo
 
   @Override
   public Leaderboard create(String playerName, String score) {
-    LeaderboardEntry leaderboardEntry = createLeaderboard(playerName, score);
+    LeaderboardEntry leaderboardEntry = createLeaderboardEntry(playerName, score);
     Leaderboard leaderboard = getLeaderboard();
     leaderboard.add(leaderboardEntry);
     return saveLeaderboardPort.save(leaderboard);
@@ -39,7 +39,7 @@ public class LeaderboardService implements GetLeaderboardUseCase, CreateLeaderbo
   @Override
   public Leaderboard update(String playerName, String score, String userName) {
     Leaderboard leaderboard = getLeaderboard();
-    LeaderboardEntry leaderboardEntry = createLeaderboard(playerName, score);
+    LeaderboardEntry leaderboardEntry = createLeaderboardEntry(playerName, score);
     if (isAuthorized(leaderboardEntry, userName)) {
       leaderboard.update(leaderboardEntry);
       leaderboard = saveLeaderboardPort.save(leaderboard);
@@ -70,7 +70,7 @@ public class LeaderboardService implements GetLeaderboardUseCase, CreateLeaderbo
     return leaderboard;
   }
 
-  private LeaderboardEntry createLeaderboard(String playerName, String score) {
+  private LeaderboardEntry createLeaderboardEntry(String playerName, String score) {
     validatePlayerName(playerName);
     validateScore(score);
     return new LeaderboardEntry(playerName, score);

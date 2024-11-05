@@ -1,5 +1,6 @@
 package dev.agustinventura.leaderboard.acceptance;
 
+import dev.agustinventura.leaderboard.fixtures.LeaderboardObjectMother;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.When;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -30,7 +31,7 @@ public class DeleteLeaderboardEntrySteps {
   public void iCreateALeaderboardEntry(String playerName, String userName) {
     responseStatus = restTestClient.delete()
         .uri("/v1/leaderboard/entry/{playerName}", playerName)
-        .header("X-USERNAME", userName)
+        .header(LeaderboardObjectMother.USERNAME_HEADER, userName)
         .retrieve()
         .onStatus(HttpStatusCode::isError, (request, response) -> responseStatus = response.getStatusCode().value())
         .toBodilessEntity()

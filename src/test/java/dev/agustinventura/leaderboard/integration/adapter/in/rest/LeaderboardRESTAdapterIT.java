@@ -122,7 +122,7 @@ class LeaderboardRESTAdapterIT {
     this.mockMvc
         .perform(
             put("/v1/leaderboard/entry/{playerName}", leaderboardEntryDTO.getPlayerName())
-                .header("X-USERNAME", "")
+                .header(LeaderboardObjectMother.USERNAME_HEADER, "")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
         )
@@ -137,7 +137,7 @@ class LeaderboardRESTAdapterIT {
     this.mockMvc
         .perform(
             put("/v1/leaderboard/entry/{playerName}", leaderboardEntryDTO.getPlayerName())
-                .header("X-USERNAME", leaderboardEntryDTO.getPlayerName())
+                .header(LeaderboardObjectMother.USERNAME_HEADER, leaderboardEntryDTO.getPlayerName())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
         )
@@ -152,7 +152,7 @@ class LeaderboardRESTAdapterIT {
     this.mockMvc
         .perform(
             put("/v1/leaderboard/entry/{playerName}", leaderboardEntryDTO.getPlayerName())
-                .header("X-USERNAME", leaderboardEntryDTO.getPlayerName())
+                .header(LeaderboardObjectMother.USERNAME_HEADER, leaderboardEntryDTO.getPlayerName())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
         )
@@ -167,7 +167,7 @@ class LeaderboardRESTAdapterIT {
     this.mockMvc
         .perform(
             put("/v1/leaderboard/entry/{playerName}", leaderboardEntryDTO.getPlayerName())
-                .header("X-USERNAME", "unauthorizedPlayer")
+                .header(LeaderboardObjectMother.USERNAME_HEADER, LeaderboardObjectMother.NOT_EXISTING_PLAYERNAME)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
         )
@@ -181,7 +181,7 @@ class LeaderboardRESTAdapterIT {
     this.mockMvc
         .perform(
             put("/v1/leaderboard/entry/{playerName}", leaderboardEntryDTO.getPlayerName())
-                .header("X-USERNAME", "admin")
+                .header(LeaderboardObjectMother.USERNAME_HEADER, LeaderboardObjectMother.ADMIN_USERNAME)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
         )
@@ -195,7 +195,7 @@ class LeaderboardRESTAdapterIT {
     this.mockMvc
         .perform(
             put("/v1/leaderboard/entry/{playerName}", leaderboardEntryDTO.getPlayerName())
-                .header("X-USERNAME", leaderboardEntryDTO.getPlayerName())
+                .header(LeaderboardObjectMother.USERNAME_HEADER, leaderboardEntryDTO.getPlayerName())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(leaderboardEntryDTO))
         )
@@ -207,7 +207,7 @@ class LeaderboardRESTAdapterIT {
     this.mockMvc
         .perform(
             delete("/v1/leaderboard/entry/playerName")
-                .header("X-USERNAME", "")
+                .header(LeaderboardObjectMother.USERNAME_HEADER, "")
         )
         .andExpect(status().isUnauthorized());
   }
@@ -218,7 +218,7 @@ class LeaderboardRESTAdapterIT {
     this.mockMvc
         .perform(
             delete("/v1/leaderboard/entry/playerName")
-                .header("X-USERNAME", "player")
+                .header(LeaderboardObjectMother.USERNAME_HEADER, LeaderboardObjectMother.NOT_EXISTING_PLAYERNAME)
         )
         .andExpect(status().isForbidden());
   }
@@ -229,7 +229,7 @@ class LeaderboardRESTAdapterIT {
     this.mockMvc
         .perform(
             delete("/v1/leaderboard/entry/playerName")
-                .header("X-USERNAME", "playerName")
+                .header(LeaderboardObjectMother.USERNAME_HEADER, LeaderboardObjectMother.NOT_EXISTING_PLAYERNAME)
         )
         .andExpect(status().isNotFound());
   }
@@ -239,7 +239,7 @@ class LeaderboardRESTAdapterIT {
     this.mockMvc
         .perform(
             delete("/v1/leaderboard/entry/playerName")
-                .header("X-USERNAME", "playerName")
+                .header(LeaderboardObjectMother.USERNAME_HEADER, LeaderboardObjectMother.ADMIN_USERNAME)
         )
         .andExpect(status().isNoContent());
   }
@@ -249,7 +249,7 @@ class LeaderboardRESTAdapterIT {
     this.mockMvc
         .perform(
             delete("/v1/leaderboard/entry/playerName")
-                .header("X-USERNAME", "playerName")
+                .header(LeaderboardObjectMother.USERNAME_HEADER, "playerName")
         )
         .andExpect(status().isNoContent());
   }
