@@ -1,6 +1,7 @@
 # About
 
 This is a test project to learn and apply different concepts.
+You also have a presentation explaining what is hexagonal architecture and how it is applied in this project here: https://docs.google.com/presentation/d/1erxnWUHeDxwaUterhfcAA0jHCRNgQOZnG_oAZ4XX-wI/edit?usp=sharing
 
 # Leaderboard
 
