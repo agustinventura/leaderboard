@@ -9,10 +9,10 @@ Este proyecto sigue una serie de principios de diseño y arquitectura que se det
 
 Antes de empezar, es importante que entiendas las decisiones clave que guían nuestro desarrollo:
 
-* **Arquitectura Principal:** Usamos **Arquitectura Hexagonal**. (Ver **[ADR-001](docs/adr/001-arquitectura-principal.md)**)
-* **Modelado de Dominio:** Aplicamos **Domain-Driven Design (DDD)**. (Ver **[ADR-002](docs/adr/002-modelado-dominio.md)**)
-* **Estrategia de Pruebas:** Combinamos **BDD y TDD**. (Ver **[ADR-003](docs/adr/003-estrategia-de-pruebas.md)**)
-* **Lenguaje:** Usamos **Java**. (Ver **[ADR-004](docs/adr/004-eleccion-del-lenguaje.md)**)
+* **Arquitectura Principal:** Usamos **Arquitectura Hexagonal**. (Ver **[ADR-001](docs/ADRs/ADR-001_Architecture.md)**)
+* **Modelado de Dominio:** Aplicamos **Domain-Driven Design (DDD)**. (Ver **[ADR-002](docs/ADRs/ADR-002_Domain_modeling.md)**)
+* **Estrategia de Pruebas:** Combinamos **BDD y TDD**. (Ver **[ADR-003](docs/ADRs/ADR-003_Test_strategy.md)**)
+* **Lenguaje:** Usamos **Java**. (Ver **[ADR-004](docs/ADRs/ADR-004_Language.md)**)
 
 ---
 ## Cómo Proponer Cambios Significativos
