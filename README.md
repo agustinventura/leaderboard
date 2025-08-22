@@ -10,7 +10,7 @@ El desarrollo de este servicio sirve como un ejercicio práctico para aplicar y 
 
 La arquitectura general del sistema se describe visualmente a alto nivel mediante un **Diagrama de Contexto (Modelo C4)**, que ilustra cómo nuestro servicio interactúa con su entorno. El fichero fuente de este diagrama se encuentra en `/docs/diagrams/c4/`.
 
-
+![Diagrama de Contexto](docs/diagrams/c4/context_diagram.png)
 
 El diseño del servicio se centra en sus capacidades y en las fronteras que lo definen.
 
@@ -54,6 +54,11 @@ Todas las decisiones importantes se documentan a través de **Architecture Decis
 * **[ADR-007: Interfaz Síncrona](docs/ADRs/ADR-007_Synchronous_API.md)**
 * **[ADR-008: Interfaz Asíncrona](docs/ADRs/ADR-008_Asynchronous_API.md)**
 * **[ADR-009: Persistencia de Datos](docs/ADRs/ADR-009_Data_persistence.md)**
+* **[ADR-010: Framework de Desarrollo](docs/ADRs/ADR-010_Development_framework.md)**
+* **[ADR-011: Stack de Pruebas](docs/ADRs/ADR-011_Test_stack.md)**
+* **[ADR-012: Observabilidad](docs/ADRs/ADR-012_Observability.md)**
+* **[ADR-013: Configuración y Secretos](docs/ADRs/ADR-013_Configuration_management_and_secrets.md)**
+* **[ADR-014: Migraciones de Base de Datos](docs/ADRs/ADR-014_Database_migration_tool.md)**
 
 ---
 
