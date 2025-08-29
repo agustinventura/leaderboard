@@ -1,37 +1,38 @@
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
-	java
-	id("org.springframework.boot") version "3.5.5"
-	id("io.spring.dependency-management") version "1.1.7"
+	id("org.springframework.boot") version "3.5.5" apply false
+	id("io.spring.dependency-management") version "1.1.7" apply false
 }
 
-group = "dev.agustinventura"
-version = "0.0.1-SNAPSHOT"
-description = "Leaderboard Service for Videogames"
+subprojects {
+    apply(plugin = "java")
+    apply(plugin = "io.spring.dependency-management")
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
-}
+    group = "dev.agustinventura"
+    version = "0.0.1-SNAPSHOT"
 
-repositories {
-	mavenCentral()
-}
+    extensions.configure<JavaPluginExtension> {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
+    }
 
-dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-actuator")
-	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.flywaydb:flyway-core")
-	implementation("org.flywaydb:flyway-database-postgresql")
-	implementation("org.springframework.kafka:spring-kafka")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	runtimeOnly("org.postgresql:postgresql")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.springframework.kafka:spring-kafka-test")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
+    configure<DependencyManagementExtension> {
+        imports {
+            mavenBom(SpringBootPlugin.BOM_COORDINATES)
+        }
+    }
 
-tasks.withType<Test> {
-	useJUnitPlatform()
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        "testImplementation"("org.junit.jupiter:junit-jupiter-api")
+        "testRuntimeOnly"("org.junit.jupiter:junit-jupiter-engine")
+        "testImplementation"("org.assertj:assertj-core")
+        "testImplementation"("org.mockito:mockito-core")
+    }
 }
