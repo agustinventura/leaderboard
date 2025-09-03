@@ -3,5 +3,6 @@ rootProject.name = "leaderboard"
 include(
     ":domain",
     ":application",
-    ":infrastructure"
+    ":infrastructure",
+    ":architecture-tests"
 )
