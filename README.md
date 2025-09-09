@@ -12,7 +12,7 @@ La arquitectura general del sistema se describe visualmente a través de los dia
 
 El **[Diagrama de Contexto](docs/diagrams/c4/context_diagram.dsl)** muestra a alto nivel cómo nuestro servicio interactúa con su entorno.
 
-![Diagrama de Contexto](docs/diagrams/context_diagram.png)
+![Diagrama de Contexto](docs/diagrams/c4/context_diagram.png)
 
 Para un mayor nivel de detalle, el **[Diagrama de Contenedores](docs/diagrams/c4/container_diagram.dsl)** descompone el servicio en sus principales bloques tecnológicos (la aplicación, la base de datos, etc.).
 
