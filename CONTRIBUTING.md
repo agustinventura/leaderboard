@@ -2,7 +2,7 @@
 
 ¡Gracias por tu interés en contribuir al **Servicio de Leaderboard**! Toda ayuda es bienvenida. Para mantener la calidad y la coherencia del proyecto, te pedimos que sigas las directrices de este documento.
 
-Este proyecto sigue una serie de principios de diseño y arquitectura que se detallan en los **[Architecture Decision Records (ADRs)](docs/adr)**. Esta guía explica cómo aplicarlos en la práctica.
+Este proyecto sigue una serie de principios de diseño y arquitectura que se detallan en los **[Architecture Decision Records (ADRs)](docs/ADRs)**. Esta guía explica cómo aplicarlos en la práctica.
 
 ---
 ## Principios Fundamentales
