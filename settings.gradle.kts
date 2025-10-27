@@ -4,5 +4,6 @@ include(
     ":domain",
     ":application",
     ":infrastructure",
-    ":architecture-tests"
+    ":architecture-tests",
+    ":acceptance-tests"
 )
