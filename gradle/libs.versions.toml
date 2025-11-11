@@ -1,0 +1,42 @@
+[versions]
+springBoot = "3.5.7"
+springDependencyManagement = "1.1.7"
+
+archunit = "1.4.1"
+cucumber = "7.18.0"
+restAssured = "5.4.0"
+
+
+[libraries]
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-boot-starter-data-jdbc = { module = "org.springframework.boot:spring-boot-starter-data-jdbc" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+spring-boot-devtools = { module = "org.springframework.boot:spring-boot-devtools" }
+
+flyway-core = { module = "org.flywaydb:flyway-core" }
+flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
+postgresql = { module = "org.postgresql:postgresql" }
+
+spring-kafka = { module = "org.springframework.kafka:spring-kafka" }
+spring-kafka-test = { module = "org.springframework.kafka:spring-kafka-test" }
+
+junit-jupiter = {module = "org.junit.jupiter:junit-jupiter"}
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
+junit-platform-launcher = {module = "org.junit.platform:junit-platform-launcher" }
+
+assertj = { module = "org.assertj:assertj-core" }
+mockito = { module = "org.mockito:mockito-core" }
+
+archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+
+cucumber-java = { module = "io.cucumber:cucumber-java", version.ref = "cucumber" }
+cucumber-spring = { module = "io.cucumber:cucumber-spring", version.ref = "cucumber" }
+cucumber-junit-engine = { module = "io.cucumber:cucumber-junit-platform-engine", version.ref = "cucumber" }
+rest-assured = { module = "io.rest-assured:rest-assured", version.ref = "restAssured" }
+
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
