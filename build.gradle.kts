@@ -2,8 +2,8 @@ import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
-    id("org.springframework.boot") version "3.5.7" apply false
-    id("io.spring.dependency-management") version "1.1.7" apply false
+    alias(libs.plugins.spring.boot) apply false
+    alias(libs.plugins.spring.dependency.management) apply false
 }
 
 subprojects {
@@ -30,9 +30,11 @@ subprojects {
     }
 
     dependencies {
-        "testImplementation"("org.junit.jupiter:junit-jupiter-api")
-        "testRuntimeOnly"("org.junit.jupiter:junit-jupiter-engine")
-        "testImplementation"("org.assertj:assertj-core")
-        "testImplementation"("org.mockito:mockito-core")
+        "testImplementation"(rootProject.libs.junit.jupiter)
+        "testRuntimeOnly"(rootProject.libs.junit.platform.launcher)
+        "testImplementation"(rootProject.libs.junit.api)
+        "testRuntimeOnly"(rootProject.libs.junit.engine)
+        "testImplementation"(rootProject.libs.assertj)
+        "testImplementation"(rootProject.libs.mockito)
     }
 }
