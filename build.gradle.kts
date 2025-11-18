@@ -1,6 +1,3 @@
-import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
 plugins {
     alias(libs.plugins.spring.boot) apply false
     alias(libs.plugins.spring.dependency.management) apply false
@@ -8,7 +5,6 @@ plugins {
 
 subprojects {
     apply(plugin = "java")
-    apply(plugin = "io.spring.dependency-management")
 
     group = "dev.agustinventura"
     version = "0.0.1-SNAPSHOT"
@@ -19,12 +15,6 @@ subprojects {
         }
     }
 
-    configure<DependencyManagementExtension> {
-        imports {
-            mavenBom(SpringBootPlugin.BOM_COORDINATES)
-        }
-    }
-
     repositories {
         mavenCentral()
     }
@@ -32,9 +22,18 @@ subprojects {
     dependencies {
         "testImplementation"(rootProject.libs.junit.jupiter)
         "testRuntimeOnly"(rootProject.libs.junit.platform.launcher)
-        "testImplementation"(rootProject.libs.junit.api)
-        "testRuntimeOnly"(rootProject.libs.junit.engine)
         "testImplementation"(rootProject.libs.assertj)
+    }
+}
+
+configure(
+    listOf(
+        project(":domain"),
+        project(":application"),
+        project(":infrastructure")
+    )
+) {
+    dependencies {
         "testImplementation"(rootProject.libs.mockito)
     }
 }

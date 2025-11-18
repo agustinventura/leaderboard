@@ -2,10 +2,14 @@
 springBoot = "3.5.7"
 springDependencyManagement = "1.1.7"
 
+junit = "5.14.1"
+junit-platform = "1.14.1"
+mockito = "5.20.0"
+assertj = "3.27.6"
+
 archunit = "1.4.1"
 cucumber = "7.18.0"
 restAssured = "5.4.0"
-
 
 [libraries]
 spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
@@ -21,13 +25,11 @@ postgresql = { module = "org.postgresql:postgresql" }
 spring-kafka = { module = "org.springframework.kafka:spring-kafka" }
 spring-kafka-test = { module = "org.springframework.kafka:spring-kafka-test" }
 
-junit-jupiter = {module = "org.junit.jupiter:junit-jupiter"}
-junit-api = { module = "org.junit.jupiter:junit-jupiter-api" }
-junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
-junit-platform-launcher = {module = "org.junit.platform:junit-platform-launcher" }
+junit-jupiter = {module = "org.junit.jupiter:junit-jupiter", version.ref = "junit"}
+junit-platform-launcher = {module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 
-assertj = { module = "org.assertj:assertj-core" }
-mockito = { module = "org.mockito:mockito-core" }
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 
 archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 
