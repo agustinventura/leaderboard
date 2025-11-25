@@ -1,10 +1,12 @@
 plugins {
     id("org.springframework.boot")
+    id("io.spring.dependency-management")
     id("java")
 }
 
 dependencies {
     implementation(project(":application"))
+    implementation(platform(libs.spring.boot.bom))
     implementation(libs.spring.boot.starter.actuator)
     implementation(libs.spring.boot.starter.data.jdbc)
     implementation(libs.spring.boot.starter.web)

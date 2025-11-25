@@ -11,7 +11,7 @@ subprojects {
 
     extensions.configure<JavaPluginExtension> {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(21))
+            languageVersion.set(JavaLanguageVersion.of(25))
         }
     }
 
@@ -20,8 +20,10 @@ subprojects {
     }
 
     dependencies {
-        "testImplementation"(rootProject.libs.junit.jupiter)
         "testRuntimeOnly"(rootProject.libs.junit.platform.launcher)
+        "testRuntimeOnly"(rootProject.libs.junit.platform.engine)
+        "testRuntimeOnly"(rootProject.libs.junit.platform.commons)
+        "testImplementation"(rootProject.libs.junit.jupiter)
         "testImplementation"(rootProject.libs.assertj)
     }
 }
