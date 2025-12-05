@@ -1,0 +1,92 @@
+openapi: 3.1.0
+info:
+  title: Leaderboard API
+  description: API for the Leaderboard service
+  version: 1.0.0
+tags:
+  - name: Leaderboard
+    description: Operations related to scores and players
+paths:
+  /v1/leaderboard:
+    get:
+      tags:
+        - Leaderboard
+      summary: Retrieves the leaderboard
+      description: Returns a paginated list of scores.
+      operationId: getLeaderboard
+      responses:
+        '200':
+          description: A sorted list of leaderboard entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaderboardEntry'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/leaderboard/entries:
+    post:
+      tags:
+        - Leaderboard
+      summary: Adds a new entry to the leaderboard
+      operationId: addLeaderboardEntry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaderboardEntry'
+      responses:
+        '201':
+          description: Entry created successfully
+          headers:
+            Location:
+              description: URI of the resource
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    LeaderboardEntry:
+      type: object
+      description: Represents a saved score record
+      required:
+        - playerName
+        - score
+      properties:
+        playerName:
+          type: string
+          minLength: 3
+          maxLength: 20
+          example: 'PlayerOne'
+        score:
+          type: integer
+          format: int64
+          minimum: 0
+          example: 12345
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: "El nombre del jugador es obligatorio"

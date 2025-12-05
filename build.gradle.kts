@@ -25,6 +25,11 @@ subprojects {
         "testRuntimeOnly"(rootProject.libs.junit.platform.commons)
         "testImplementation"(rootProject.libs.junit.jupiter)
         "testImplementation"(rootProject.libs.assertj)
+        "testImplementation"(rootProject.libs.instancio.junit)
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
     }
 }
 

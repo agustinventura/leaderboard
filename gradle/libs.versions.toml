@@ -1,5 +1,5 @@
 [versions]
-springBoot = "3.5.7"
+springBoot = "3.5.8"
 springDependencyManagement = "1.1.7"
 
 junit = "5.14.1"
@@ -10,6 +10,12 @@ assertj = "3.27.6"
 archunit = "1.4.1"
 cucumber = "7.32.0"
 restAssured = "5.5.6"
+openapi-generator = "7.17.0"
+swagger-annotations = "2.2.41"
+validation-api = "3.1.1"
+springdoc = "2.8.14"
+instancio = "5.5.1"
+mapstruct = "1.6.3"
 
 [libraries]
 spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "springBoot" }
@@ -34,6 +40,7 @@ junit-platform-commons = { module = "org.junit.platform:junit-platform-commons",
 
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+instancio-junit = { module = "org.instancio:instancio-junit", version.ref = "instancio" }
 
 archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 
@@ -42,7 +49,13 @@ cucumber-spring = { module = "io.cucumber:cucumber-spring", version.ref = "cucum
 cucumber-junit-engine = { module = "io.cucumber:cucumber-junit-platform-engine", version.ref = "cucumber" }
 rest-assured = { module = "io.rest-assured:rest-assured", version.ref = "restAssured" }
 
+swagger-annotations = { module = "io.swagger.core.v3:swagger-annotations", version.ref = "swagger-annotations" }
+validation-api = { module = "jakarta.validation:jakarta.validation-api", version.ref = "validation-api" }
+springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
+mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version = "1.6.3" }
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
+openapi-generator = { id = "org.openapi.generator", version.ref = "openapi-generator" }
