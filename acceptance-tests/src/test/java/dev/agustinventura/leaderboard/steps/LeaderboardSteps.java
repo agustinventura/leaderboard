@@ -51,7 +51,7 @@ public class LeaderboardSteps {
                     .contentType(ContentType.JSON)
                     .body(requestBody)
                     .when()
-                    .post("/leaderboard-entries")
+                    .post("/leaderboard/entries")
                     .then()
                     .statusCode(201);
         }

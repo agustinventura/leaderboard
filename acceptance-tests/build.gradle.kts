@@ -3,7 +3,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
     java
-    id("io.spring.dependency-management")
+    alias(libs.plugins.spring.dependency.management)
 }
 
 configure<DependencyManagementExtension> {
@@ -19,8 +19,4 @@ dependencies {
     testImplementation(libs.cucumber.spring)
     testRuntimeOnly(libs.cucumber.junit.engine)
     testImplementation(libs.rest.assured)
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
 }

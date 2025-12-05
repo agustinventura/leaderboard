@@ -8,7 +8,3 @@ dependencies {
     testImplementation(project(":infrastructure"))
     testImplementation(libs.archunit)
 }
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
