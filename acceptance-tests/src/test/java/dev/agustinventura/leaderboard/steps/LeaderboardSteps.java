@@ -51,7 +51,7 @@ public class LeaderboardSteps {
                     .contentType(ContentType.JSON)
                     .body(requestBody)
                     .when()
-                    .post("/leaderboard/entries")
+                    .post("/v1/leaderboard/entries")
                     .then()
                     .statusCode(201);
         }
@@ -61,7 +61,7 @@ public class LeaderboardSteps {
     public void i_retrieve_the_leaderboard() {
         response = given()
                 .when()
-                .get("/leaderboard");
+                .get("/v1/leaderboard");
     }
 
     @Then("the leaderboard should be empty")

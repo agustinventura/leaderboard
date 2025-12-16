@@ -12,21 +12,10 @@ dependencies {
     implementation(project(":application"))
     implementation(platform(libs.spring.boot.bom))
     implementation(libs.spring.boot.starter.actuator)
-    implementation(libs.spring.boot.starter.data.jdbc)
     implementation(libs.spring.boot.starter.web)
-    implementation(libs.flyway.core)
-    implementation(libs.flyway.postgresql)
-    implementation(libs.spring.kafka)
     implementation(libs.swagger.annotations)
     implementation(libs.validation.api)
     implementation(libs.springdoc.openapi.starter.webmvc.ui)
-    implementation(libs.mapstruct)
-    annotationProcessor(libs.mapstruct.processor)
-
-    runtimeOnly(libs.postgresql)
-    testImplementation(libs.spring.boot.starter.test)
-    testImplementation(libs.spring.kafka.test)
-    testImplementation(libs.instancio.junit)
 }
 
 tasks.withType<GenerateTask> {
@@ -36,6 +25,7 @@ tasks.withType<GenerateTask> {
     apiPackage.set("dev.agustinventura.leaderboard.adapters.in.rest")
     modelPackage.set("dev.agustinventura.leaderboard.adapters.in.rest.dto")
     modelNameSuffix.set("RESTDTO")
+    openapiGeneratorIgnoreList.set(listOf("src/main/java/org/openapitools/OpenApiGeneratorApplication.java"))
     configOptions.set(
         mapOf(
             "delegatePattern" to "true",
