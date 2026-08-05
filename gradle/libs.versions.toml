@@ -8,7 +8,7 @@ mockito = "5.20.0"
 assertj = "3.27.6"
 
 archunit = "1.4.1"
-cucumber = "7.32.0"
+cucumber = "7.34.6"
 restAssured = "5.5.6"
 openapi-generator = "7.20.0"
 swagger-annotations = "2.2.41"
