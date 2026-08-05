@@ -1,0 +1,50 @@
+metadata:
+  task_id: "adr-015-dependabot-implementation"
+  author: "scout"
+  status: "completed"
+
+analyzed_files:
+  - "docs/ADRs/ADR-015_Dependency_upgrade_management.md"
+  - "README.md"
+  - ".github/ (directory listing)"
+  - "settings.gradle.kts"
+  - "gradle/libs.versions.toml"
+  - "build.gradle.kts (existence only)"
+
+findings:
+  - "ADR-015 status is 'Propuesto' (Proposed), not yet 'Aceptada'. It explicitly states it documents ONLY the tool decision (Dependabot) and does NOT introduce operational configuration, does NOT modify declared dependencies/build files, and does NOT change CI/workflows."
+  - "README.md already lists ADR-015 correctly at line 64 in the ADR index; no README changes are needed."
+  - ".github/ directory currently contains only 'copilot-instructions.md', an 'agents/' folder (agent markdown defs), and 'hooks/rtk-rewrite.json'. There is NO '.github/workflows/' directory and NO existing '.github/dependabot.yml' file — this will be a net-new file."
+  - "Repository is a single Gradle multi-module build rooted at '/': settings.gradle.kts includes ':domain', ':application', ':infrastructure', ':architecture-tests', ':acceptance-tests', with root build.gradle.kts present. Dependabot's Gradle ecosystem support scans the whole multi-module project from a single root directory '/' — no per-module directories are needed/supported by Dependabot's Gradle updater."
+  - "gradle/libs.versions.toml is the version catalog (Gradle version catalogs). Dependabot v2 Gradle ecosystem does support updating version-catalog-declared versions when scanning from root '/', so no extra directory entry is required for it."
+  - "No existing dependabot.yml means there is no risk of merge conflict; this will be a pure addition."
+
+technical_assessment: |
+  Scope boundary per ADR-015: the ADR text is explicit and repeated three times (Contexto, Decisión justification #4 implied, and Consecuencias) that this ADR is a TOOL CHOICE decision only — it "no introduce configuración operativa" and "no modifica dependencias declaradas ni archivos de build" and "no introduce cambios en CI, workflows ni código de aplicación."
+
+  This creates an apparent tension for the Leader: approving/implementing ADR-015 as literally scoped would mean NO dependabot.yml is created yet (that would be "configuración operativa" reserved for "una decisión posterior"). The Leader must decide whether the task "adr-015-dependabot-implementation" means:
+    (a) purely accepting the ADR (flip Estado to Aceptada, maybe no code changes), or
+    (b) actually creating the minimal dependabot.yml despite the ADR's stated non-scope (likely the real intent given the task name "...-implementation").
+  Flag this ambiguity for the Leader's plan — the ADR's own "Consecuencias" section anticipates a follow-up operational decision, so a minimal dependabot.yml could be framed as that necessary follow-up rather than a contradiction, especially since the instructions explicitly ask to "identify... exact files required" and "a minimal valid Dependabot v2 Gradle entry."
+
+  Required/candidate files:
+    1. NEW FILE: ".github/dependabot.yml" — does not exist today. Minimal valid v2 entry for a single Gradle multi-module root:
+
+       version: 2
+       updates:
+         - package-ecosystem: "gradle"
+           directory: "/"
+           schedule:
+             interval: "weekly"
+
+    2. Optionally update ADR-015 "Estado" field from "Propuesto" to "Aceptada" if the task also covers ADR acceptance (front-matter line 4: `- **Estado:** Propuesto`). This is a documentation-only ADR state change, separate from the dependabot.yml addition.
+    3. No README.md change needed (ADR-015 already indexed at line 64).
+    4. No changes needed to settings.gradle.kts, build.gradle.kts, or gradle/libs.versions.toml — Dependabot's Gradle updater does not require per-module directory entries; root "/" covers the whole multi-module project including the version catalog.
+    5. No existing CI/workflow files were found under .github/ (no .github/workflows directory exists at all), so there is nothing to touch there, consistent with ADR-015's "no cambios en CI" statement.
+
+  Recommended schedule: "weekly" interval is conservative — it batches PRs instead of daily noise, does not pin/change any dependency version (schedule/discovery only, no version bumps performed by the file itself), and does not alter any CI workflow because no workflow files exist or are referenced by dependabot.yml (dependabot.yml only configures the Dependabot service, it is not itself a GitHub Actions workflow and does not invoke one unless a "groups"/"open-pull-requests-limit" advanced feature explicitly ties into Actions, which is out of scope for a minimal entry).
+
+  Potential blockers/edge cases for the Leader:
+    - The ADR's explicit "no opera" language could be interpreted as blocking any dependabot.yml creation in this task; recommend the Leader either (a) treat this task as the follow-up operational configuration ADR-015 anticipates, updating "Consecuencias" note if desired, or (b) scope this task strictly to flipping ADR status to Aceptada and defer dependabot.yml to a distinct future ADR/task. This decision has not been made by Scout and is left for the Leader.
+    - No open-pull-requests-limit specified in the minimal snippet above; Dependabot defaults to 5 if omitted — acceptable for a minimal/conservative config, can be added explicitly if the Leader wants to be prescriptive.
+    - Multi-module Gradle projects are supported by a single root "/" directory entry in Dependabot; do not create one entry per submodule (:domain, :application, etc.) — this is unnecessary and could be seen as scope creep beyond "minimal."

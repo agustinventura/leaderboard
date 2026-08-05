@@ -1,0 +1,37 @@
+metadata:
+  task_id: "adr-015-dependabot-implementation"
+  author: "leader"
+  status: "draft"
+
+acceptance_criteria:
+  - "docs/ADRs/ADR-015_Dependency_upgrade_management.md has `- **Estado:** Aceptada`; its decision, rationale, and stated exclusions otherwise remain unchanged."
+  - ".github/dependabot.yml exists and parses as YAML."
+  - ".github/dependabot.yml contains exactly one Dependabot v2 update entry: `package-ecosystem: \"gradle\"`, `directory: \"/\"`, and `schedule.interval: \"weekly\"`."
+  - "The Dependabot configuration has no additional ecosystem entries, per-module Gradle entries, grouping rules, pull-request limits, reviewers, labels, ignore/allow rules, or GitHub Actions workflow configuration."
+  - "No dependency declaration/version, Gradle build file, application source, test, CI workflow, README, or other repository file is modified."
+
+steps: |
+  1. In `docs/ADRs/ADR-015_Dependency_upgrade_management.md`, change only the `Estado` metadata value from `Propuesto` to `Aceptada`. Keep the ADR's tool-selection decision and its wording that operational configuration is separate from the ADR decision: this task is the explicitly authorized, minimal follow-up configuration and does not alter the ADR's decision scope.
+
+  2. Create `.github/dependabot.yml` with the complete minimal Dependabot v2 configuration:
+     ```yaml
+     version: 2
+     updates:
+       - package-ecosystem: "gradle"
+         directory: "/"
+         schedule:
+           interval: "weekly"
+     ```
+     Use one root Gradle entry only. The repository is a single Gradle multi-module build, so `/` covers all modules and `gradle/libs.versions.toml`; do not add entries for individual modules or the version catalog.
+
+  3. Validate the ADR diff confirms the sole documentation change is `Propuesto` to `Aceptada`. Parse the new configuration and assert its required values with:
+     ```sh
+     ruby -ryaml -e 'c = YAML.load_file(".github/dependabot.yml"); abort unless c == {"version"=>2, "updates"=>[{"package-ecosystem"=>"gradle", "directory"=>"/", "schedule"=>{"interval"=>"weekly"}}]}'
+     ```
+     Also inspect the final changed-file list to confirm only `docs/ADRs/ADR-015_Dependency_upgrade_management.md` and `.github/dependabot.yml` are task changes. Do not run Gradle build or tests: no build logic, dependencies, source, or tests change.
+
+  Exclusions:
+  - Do not modify `README.md`; ADR-015 is already indexed.
+  - Do not modify `settings.gradle.kts`, any `build.gradle.kts`, or `gradle/libs.versions.toml`, and do not update any dependency.
+  - Do not create or modify `.github/workflows/**` or any other CI configuration.
+  - Do not add Dependabot policy/customization beyond the single weekly Gradle root scan.

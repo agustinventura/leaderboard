@@ -1,0 +1,22 @@
+metadata:
+  task_id: "adr-015-dependency-upgrades"
+  author: "implementer"
+  status: "completed"
+
+modified_files:
+  - "docs/ADRs/ADR-015_Dependency_upgrade_management.md"
+  - "README.md"
+
+notes: |
+  Implemented with minimal scope exactly as requested.
+
+  TDD/documentation flow:
+  - RED: pre-check with `python3` failed as expected with `AssertionError: ADR-015 file missing`.
+  - GREEN: added ADR-015 in Spanish with the required structure and added the exact ADR-015 README index bullet after ADR-014.
+  - Final validation: documentation/diff checks passed with `Documentation validation passed` (exit code 0).
+
+  Key verifications:
+  - `docs/ADRs/ADR-015_Dependency_upgrade_management.md` exists with required date/status and ordered sections.
+  - Decision explicitly selects Dependabot and objectively compares manual review and Renovate alternatives.
+  - README contains exactly one ADR-015 bullet in the required position.
+  - No `.github/dependabot.yml` was created and no build/CI/code/dependency files were modified.

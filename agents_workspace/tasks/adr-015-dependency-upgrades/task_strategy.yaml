@@ -1,0 +1,38 @@
+metadata:
+  task_id: "adr-015-dependency-upgrades"
+  author: "leader"
+  task_type: "documentation_update"
+  status: "pending"
+
+objective: |
+  Create ADR-015 in Spanish, consistent with the existing ADRs, to establish a
+  reactive strategy for identifying and managing dependency upgrades on GitHub.
+  The ADR must evaluate alternatives and recommend the GitHub-native,
+  low-maintenance option (Dependabot), without implementing configuration or
+  dependency changes beyond the ADR itself.
+
+workflow:
+  - step: 1
+    agent: "scout"
+    action: "Inspect the existing ADR structure, naming, language, and conventions; locate any ADR index or references; and identify relevant dependency ecosystems/files. Report the exact documentation scope for ADR-015 and whether an index must be updated. Do not modify files."
+    expected_output: "scout_findings.yaml"
+
+  - step: 2
+    agent: "leader"
+    action: "Create a documentation plan from the findings: the precise ADR-015 location and format, Spanish ADR sections, comparable alternatives including Dependabot, and the GitHub-native low-maintenance decision. Explicitly keep Dependabot configuration and dependency upgrades out of scope."
+    expected_output: "implementation_plan.yaml"
+
+  - step: 3
+    agent: "implementer"
+    action: "Write ADR-015 in Spanish according to the plan and local conventions. Cover context, decision, considered alternatives, and consequences, favoring Dependabot as GitHub's native reactive mechanism. Update only documentation indexes or references confirmed necessary by the plan; do not create dependabot.yml or modify build files."
+    expected_output: "implementation_result.yaml"
+
+  - step: 4
+    agent: "reviewer"
+    action: "Verify that the ADR matches existing ADR conventions, is fully in Spanish, presents alternatives with a justified Dependabot recommendation, and limits changes to the ADR and approved documentation references, with no operational configuration or unrequested upgrades."
+    expected_output: "reviewer_result.yaml"
+
+  - step: 5
+    agent: "documenter"
+    action: "Record the final documentation result and confirm any updated ADR references, if applicable. Do not extend the scope to operational configuration."
+    expected_output: "documenters_result.yaml"

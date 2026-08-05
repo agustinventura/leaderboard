@@ -1,0 +1,20 @@
+metadata:
+  task_id: "adr-015-dependency-upgrades"
+  author: "leader"
+  status: "draft"
+
+acceptance_criteria:
+  - "Exists exactly one new ADR file at `docs/ADRs/ADR-015_Dependency_upgrade_management.md`; its body is entirely in Spanish and follows the established ADR order: H1, Fecha/Estado metadata, Contexto, Opciones Consideradas, Decisión (including Justificación), and Consecuencias."
+  - "ADR-015 has `**Fecha:** 2026-08-05` and `**Estado:** Propuesto`, and objectively compares Dependabot with at least two alternative dependency-update approaches before selecting Dependabot."
+  - "The decision explicitly selects Dependabot as GitHub's native, low-maintenance reactive mechanism for Gradle dependency-update identification, with concrete, balanced justification and consequences."
+  - "README.md contains exactly one ADR-015 index bullet, after ADR-014 and before the following `---` separator, whose Spanish title and relative link target exactly match ADR-015."
+  - "The only repository documentation changes are the new ADR-015 file and the README ADR-index bullet; no `.github/dependabot.yml`, CI/workflow files, dependency declarations, build files, or application code are created or modified."
+
+steps: |
+  1. Create `docs/ADRs/ADR-015_Dependency_upgrade_management.md`. Use the repository ADR convention: `# ADR-015: Gestión de actualizaciones de dependencias`, then `- **Fecha:** 2026-08-05` and `- **Estado:** Propuesto`, followed in order by `## Contexto`, `## Opciones Consideradas`, `## Decisión`, and `## Consecuencias`. Write all prose in Spanish.
+  2. In `Contexto`, explain the need to identify dependency updates in the multi-module Gradle/Kotlin DSL repository while keeping review and maintenance manageable. State that this ADR records a decision only; it does not introduce operational configuration or perform upgrades.
+  3. In `Opciones Consideradas`, objectively describe trade-offs for at least: manual review of dependency updates, Renovate (or an equivalent external configurable updater), and Dependabot. Describe Dependabot's relevant GitHub-native support and Gradle applicability without claiming that configuration is being added.
+  4. In `Decisión`, select Dependabot in bold and add a `Justificación:` subsection. Justify the choice against each alternative in terms of GitHub integration, reactive update discovery, maintenance burden, configurability, and review control. Do not prescribe or include a `.github/dependabot.yml` implementation.
+  5. In `Consecuencias`, list concrete expected effects and limits: dependency-update pull requests/alerts would require a later configuration decision, updates remain subject to project review/testing, and no dependency, CI, workflow, or build-file change is made by this ADR.
+  6. Update only the README ADR index: append `* **[ADR-015: Gestión de actualizaciones de dependencias](docs/ADRs/ADR-015_Dependency_upgrade_management.md)**` immediately after ADR-014 and immediately before its following `---` separator. Do not update CONTRIBUTING.md or any other reference.
+  7. Verify the diff contains only the ADR file and the README index line, the filename/link/title agree exactly, the ADR is Spanish and structurally consistent with prior ADRs, and no Dependabot configuration, CI, dependency, build, or code file is present in the diff.

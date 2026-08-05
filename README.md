@@ -14,7 +14,7 @@ El **[Diagrama de Contexto](docs/diagrams/c4/context_diagram.dsl)** muestra a al
 
 ![Diagrama de Contexto](docs/diagrams/c4/context_diagram.png)
 
-Para un mayor nivel de detalle, el **[Diagrama de Contenedores](docs/diagrams/c4/container_diagram.dsl)** descompone el servicio en sus principales bloques tecnológicos (la aplicación, la base de datos, etc.).
+Para un mayor nivel de detalle, el **[Diagrama de Contenedores](docs/diagrams/c4/containers_diagram.dsl)** descompone el servicio en sus principales bloques tecnológicos (la aplicación, la base de datos, etc.).
 
 ### Ingesta de Datos (Entradas)
 
@@ -61,6 +61,7 @@ Todas las decisiones importantes se documentan a través de **Architecture Decis
 * **[ADR-012: Observabilidad](docs/ADRs/ADR-012_Observability.md)**
 * **[ADR-013: Configuración y Secretos](docs/ADRs/ADR-013_Configuration_management_and_secrets.md)**
 * **[ADR-014: Migraciones de Base de Datos](docs/ADRs/ADR-014_Database_migration_tool.md)**
+* **[ADR-015: Gestión de actualizaciones de dependencias](docs/ADRs/ADR-015_Dependency_upgrade_management.md)**
 
 ---
 

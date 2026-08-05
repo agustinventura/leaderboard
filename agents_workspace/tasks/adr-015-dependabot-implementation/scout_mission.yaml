@@ -1,0 +1,19 @@
+metadata:
+  task_id: "adr-015-dependabot-implementation"
+  author: "leader"
+  status: "pending"
+
+target: "Identify minimal safe Dependabot configuration and exact files required to approve ADR-015."
+
+relevant_files_to_check:
+  - "docs/ADRs/ADR-015_Dependency_upgrade_management.md"
+  - "README.md"
+  - ".github/"
+  - "gradle/libs.versions.toml"
+  - "settings.gradle.kts"
+
+instructions: |
+  1. Inspect ADR-015, its README index entry, existing GitHub automation, Gradle layout, and version catalog.
+  2. Report exact files requiring changes and a minimal valid Dependabot v2 Gradle entry rooted at "/".
+  3. Recommend a conservative schedule and explain why it does not change dependency versions or CI workflows.
+  4. Do not modify production, configuration, or documentation files outside this task workspace.

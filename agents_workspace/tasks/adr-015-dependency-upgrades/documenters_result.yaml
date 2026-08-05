@@ -1,0 +1,32 @@
+metadata:
+  task_id: "adr-015-dependency-upgrades"
+  author: "documenter"
+  status: "completed"
+
+documentation_changes:
+  created_files:
+    - file: "docs/ADRs/ADR-015_Dependency_upgrade_management.md"
+      description: "Architecture Decision Record for dependency upgrade management tool selection. Entirely in Spanish, follows established ADR convention with H1 title, Fecha/Estado metadata (2026-08-05, Propuesto), Contexto, Opciones Consideradas, Decisión with Justificación subsection, and Consecuencias. Objectively compares manual review, Renovate, and Dependabot; explicitly selects Dependabot with concrete GitHub-native, low-maintenance justification; acknowledges configurability limits and review-subject constraints."
+  
+  modified_files:
+    - file: "README.md"
+      lines: 64
+      change: "Added ADR-015 index bullet: '* **[ADR-015: Gestión de actualizaciones de dependencias](docs/ADRs/ADR-015_Dependency_upgrade_management.md)**' immediately after ADR-014 and before the following '---' separator. Title and relative link match the new ADR file exactly."
+
+adr_references:
+  - adr_file: "docs/ADRs/ADR-015_Dependency_upgrade_management.md"
+    adr_title: "Gestión de actualizaciones de dependencias"
+    adr_status: "Propuesto"
+    adr_date: "2026-08-05"
+    decision_summary: "Adopt Dependabot as GitHub's native reactive mechanism for Gradle dependency-update identification, balancing GitHub integration, maintenance burden, configurability, and review control against manual review and Renovate alternatives."
+
+verification:
+  - "ADR-015 file exists and is entirely in Spanish with correct metadata and required sections."
+  - "README.md ADR index updated with exactly one ADR-015 bullet in correct position (after ADR-014, before '---')."
+  - "No .github/dependabot.yml configuration file created (as per plan: decision only, no operational config)."
+  - "No CI/workflow, build, dependency, or application code files modified or created."
+  - "Documentation changes align with implementation_plan.yaml acceptance criteria."
+  - "Reviewer approval confirmed; no detected problems; all acceptance criteria satisfied."
+
+notes: |
+  Documentation audit complete. The task scope was documentation-only: create ADR-015 file and update README ADR index. Both deliverables are in place, verified by Reviewer as complete and correct. No code, build, CI, workflow, or dependency configuration was created or altered. The ADR records a decision to adopt Dependabot and explicitly notes that operational configuration (e.g., .github/dependabot.yml) is deferred to a later decision and that no dependency or build files are changed by this ADR itself.

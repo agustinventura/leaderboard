@@ -77,7 +77,7 @@ Read on demand (progressive disclosure); don't preload everything. When making a
 - [ADR-005](docs/ADRs/ADR-005_Build_tool.md) — Elección de la Herramienta de Construcción (Gradle)
 - [ADR-006](docs/ADRs/ADR-006_Architecture_implementation.md) — Implementación de la Arquitectura Hexagonal (module layout)
 - [ADR-007](docs/ADRs/ADR-007_Synchronous_API.md) — Elección del Mecanismo para la Interfaz Síncrona (REST)
-- [ADR-008](docs/ADRs/ADR-008_Asynchrnous_API.md) — Elección del Mecanismo para la Interfaz Asíncrona
+- [ADR-008](docs/ADRs/ADR-008_Asynchronous_API.md) — Elección del Mecanismo para la Interfaz Asíncrona
 - [ADR-009](docs/ADRs/ADR-009_Data_persistence.md) — Elección de la Solución de Persistencia de Datos (PostgreSQL)
 - [ADR-010](docs/ADRs/ADR-010_Development_framework.md) — Elección del Framework de Desarrollo (Spring Boot)
 - [ADR-011](docs/ADRs/ADR-011_Test_stack.md) — Elección del Stack de Pruebas

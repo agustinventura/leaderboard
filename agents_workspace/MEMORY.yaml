@@ -1,3 +1,5 @@
 learnings:
   - "For Spring Boot 4 migration work, run OpenAPI generation with `:infrastructure:openApiGenerate`; `:infrastructure:generate` does not exist."
   - "The known missing REST adapter/bootstrap compile blockers are separate from dependency migrations and must remain out of scope unless explicitly included."
+  - "ADR-015 selects Dependabot as the GitHub-native, low-maintenance mechanism for identifying Gradle dependency updates; its operational configuration is deferred to a separate decision."
+  - "Dependabot is configured project-wide for Gradle dependency updates from the repository root on a weekly schedule, without custom grouping, labels, reviewers, or PR limits."

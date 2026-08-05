@@ -1,0 +1,62 @@
+metadata:
+  task_id: "adr-015-dependency-upgrades"
+  author: "scout"
+  status: "completed"
+
+analyzed_files:
+  - "docs/ADRs/ADR-001_Architecture.md"
+  - "docs/ADRs/ADR-013_Configuration_management_and_secrets.md"
+  - "docs/ADRs/ADR-014_Database_migration_tool.md"
+  - "README.md"
+  - "CONTRIBUTING.md"
+  - "settings.gradle.kts"
+  - "build.gradle.kts"
+
+findings:
+  - "ADRs live in docs/ADRs/, one file per ADR, named 'ADR-<NNN>_<Short_Title_In_English_With_Underscores>.md' (e.g. ADR-014_Database_migration_tool.md). The new one must be 'docs/ADRs/ADR-015_<Short_Title>.md'; last existing ADR is ADR-014, so 015 is the next free number (no gaps)."
+  - "Every ADR file body is written entirely in Spanish, even though the filename/title slug is in English (mixed convention: English filename, Spanish content)."
+  - "Standard ADR template observed across all 14 files: H1 title '# ADR-<NNN>: <Título en Español>', then a metadata block with '- **Fecha:** YYYY-MM-DD' and '- **Estado:** Aceptado' (or 'Propuesto' per CONTRIBUTING.md workflow), followed by H2 sections in this exact order: '## Contexto', '## Opciones Consideradas' (numbered list of alternatives with bold names and trade-off descriptions), '## Decisión' (bold-faced chosen option + 'Justificación:' subsection reasoning through discarded/accepted options), '## Consecuencias' (bullet list of concrete resulting actions/changes)."
+  - "CONTRIBUTING.md (lines 20-27) states any change with significant impact on architecture, dependencies, or workflow must go through an ADR, created with 'Estado: Propuesto' and opened as a PR for discussion — supports Estado: Propuesto for ADR-015 unless leader decides otherwise."
+  - "README.md (lines 48-63) contains a manually maintained ADR index: an intro sentence pointing to /docs/ADRs, followed by a bullet list '* **[ADR-XXX: <Título en Español>](docs/ADRs/ADR-XXX_File.md)**' for every ADR from 001 to 014, in ascending numeric order, immediately followed by a '---' separator and the '## 🤝 Contribución' section."
+  - "This README index is the ONLY ADR index/reference found in the repository; CONTRIBUTING.md references specific ADRs inline (e.g. ADR-001..004) as design-principle citations but does not maintain a full list/index, so it does not require updating for ADR-015."
+  - "No other ADR index, table of contents, or cross-reference file exists elsewhere (checked docs/, docs/ADRs/, project root)."
+  - "CONCLUSION: the README.md ADR index DOES need a new bullet line for ADR-015, appended after the ADR-014 line and before the '---' separator, following the exact same bullet format/style as existing entries."
+  - "No .github/dependabot.yml or any dependabot* file exists anywhere in the repository (confirmed via search) — there is no existing Dependabot configuration to reference, contradict, or accidentally duplicate."
+  - "No .github/workflows directory exists — no existing CI dependency-update automation to compare against in the ADR's 'Opciones Consideradas'."
+  - "Dependency ecosystem files present (context only, NOT to be modified — out of scope per mission): root build.gradle.kts, settings.gradle.kts (multi-module Gradle project: domain, application, infrastructure, architecture-tests, acceptance-tests, each with its own build.gradle.kts) using Kotlin DSL. This confirms the relevant ecosystem for Dependabot discussion purposes is 'gradle', but no build file should be touched."
+  - "ADR-005_Build_tool.md documents the prior decision to use Gradle (Kotlin DSL) as build tool — useful background context for ADR-015 since Dependabot's 'gradle' package-ecosystem is the applicable one, but this is informational only, not something to alter."
+
+technical_assessment: |
+  Scope confirmation: the task is strictly to add a new documentation file
+  docs/ADRs/ADR-015_<Slug>.md (Spanish content) following the exact structure
+  used by ADR-001..ADR-014 (Fecha/Estado header, Contexto, Opciones
+  Consideradas, Decisión con Justificación, Consecuencias), and to add exactly
+  one new bullet line to the README.md ADR index (lines 48-63 block) — the
+  single existing index in the repo. No other index/reference file exists, so
+  no further reference updates are needed.
+
+  Naming: pick ADR-015 with an English, underscore-separated short title
+  matching the pattern of prior files (e.g. ADR-013_Configuration_management_and_secrets.md,
+  ADR-014_Database_migration_tool.md). A fitting slug consistent with the
+  objective (reactive dependency-upgrade strategy) would be something like
+  "ADR-015_Dependency_upgrade_management.md" or similar — left to the Leader's
+  planning step to finalize exact wording.
+
+  Estado value: CONTRIBUTING.md's documented workflow expects new ADRs to
+  start as "Propuesto" via PR, but all 14 existing ADRs in the repo are
+  currently "Aceptado" (merged/finalized state) — Leader should decide whether
+  ADR-015 should be authored as "Propuesto" (matching the documented workflow
+  for new ADRs) or "Aceptado" (matching the de facto state of all merged ADRs
+  in main). This is a decision point for the planning step, not something the
+  scout should resolve.
+
+  Ecosystem constraint reminder: the repository has NO existing dependabot.yml,
+  no .github/workflows, and uses Gradle Kotlin DSL modules (domain,
+  application, infrastructure, architecture-tests, acceptance-tests). These
+  facts should inform the "Opciones Consideradas" / "Decisión" narrative of
+  the ADR (e.g., contrasting Dependabot's native GitHub support for the
+  'gradle' ecosystem vs. other tools like Renovate), but per the approved
+  strategy and mission, the implementer must NOT create dependabot.yml, must
+  NOT touch any build.gradle.kts/settings.gradle.kts, and must NOT create
+  .github/workflows — those remain strictly out of scope; only the ADR
+  Markdown file and the README.md index bullet may be created/modified.

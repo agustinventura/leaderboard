@@ -1,0 +1,38 @@
+metadata:
+  task_id: "adr-015-dependabot-implementation"
+  author: "leader"
+  task_type: "configuration_change"
+  status: "pending"
+
+objective: |
+  Finalize ADR-015 by changing its status from Propuesto to Aceptado, then
+  operationalize its approved Dependabot decision with the smallest safe
+  GitHub configuration for this Gradle Kotlin DSL multi-module repository.
+  The work must create dependency-update pull requests only; it must not
+  upgrade dependencies, alter Gradle build files, or introduce CI workflows.
+
+workflow:
+  - step: 1
+    agent: "scout"
+    action: "Inspect the current ADR-015 and its README index entry, any existing Dependabot or GitHub automation configuration, the Gradle multi-module layout and version catalog, and repository contribution conventions. Confirm the exact files that require changes and report a minimal valid Dependabot v2 configuration for Gradle rooted at the repository root, including a justified non-disruptive schedule. Do not modify files."
+    expected_output: "scout_findings.yaml"
+
+  - step: 2
+    agent: "leader"
+    action: "Draft a precise implementation plan from the findings. Require changing only ADR-015's Estado to Aceptado and adding .github/dependabot.yml with a valid Dependabot v2 Gradle update entry for directory '/' on a conservative schedule. Define binary validation criteria, retain the existing README entry unless findings show it is inconsistent, and explicitly exclude dependency upgrades, Gradle/build changes, application code, and CI workflows."
+    expected_output: "draft_implementation_plan.yaml"
+
+  - step: 3
+    agent: "implementer"
+    action: "After plan approval, update ADR-015 only as specified to mark the decision Aceptado, and add the approved minimal .github/dependabot.yml configuration. Preserve all ADR decision content and existing documentation links unless the plan explicitly requires a correction. Do not modify dependency versions, Gradle files, source code, tests, or GitHub Actions workflows."
+    expected_output: "implementation_result.yaml"
+
+  - step: 4
+    agent: "reviewer"
+    action: "Audit the diff against the approved plan. Verify ADR-015 is accepted without unintended prose or index changes; validate the Dependabot YAML structure (version 2, Gradle ecosystem, root directory, and approved schedule); confirm it targets the repository's Gradle dependency declarations; and reject any dependency, build, source, test, or workflow changes."
+    expected_output: "reviewer_result.yaml"
+
+  - step: 5
+    agent: "documenter"
+    action: "Record the completed ADR approval and Dependabot operational configuration, including its scope and exclusions. Do not make unrelated documentation or configuration changes."
+    expected_output: "documenters_result.yaml"

@@ -1,0 +1,17 @@
+metadata:
+  task_id: "adr-015-dependabot-implementation"
+  author: "implementer"
+  status: "completed"
+
+modified_files:
+  - "docs/ADRs/ADR-015_Dependency_upgrade_management.md"
+  - ".github/dependabot.yml"
+
+notes: |
+  Config-only task executed (TDD not applicable per instruction).
+  - Updated ADR-015 status metadata from `Propuesto` to `Aceptada` only.
+  - Added `.github/dependabot.yml` with the minimal single-entry Dependabot v2 Gradle weekly root configuration.
+  - YAML parse/assert validation executed exactly as requested:
+    `ruby -ryaml -e 'c = YAML.load_file(".github/dependabot.yml"); abort unless c == {"version"=>2, "updates"=>[{"package-ecosystem"=>"gradle", "directory"=>"/", "schedule"=>{"interval"=>"weekly"}}]}'`
+    Result: success (`YAML_ASSERT_OK`).
+  - Changed-file inspection performed; repository contains unrelated pre-existing modifications, while task changes are limited to the two files listed above.
