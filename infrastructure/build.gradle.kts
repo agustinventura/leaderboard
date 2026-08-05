@@ -12,9 +12,9 @@ dependencies {
     implementation(project(":application"))
     implementation(platform(libs.spring.boot.bom))
     implementation(libs.spring.boot.starter.actuator)
-    implementation(libs.spring.boot.starter.web)
+    implementation(libs.spring.boot.starter.webmvc)
     implementation(libs.swagger.annotations)
-    implementation(libs.validation.api)
+    implementation(libs.spring.boot.starter.validation)
     implementation(libs.springdoc.openapi.starter.webmvc.ui)
 }
 
@@ -29,7 +29,8 @@ tasks.withType<GenerateTask> {
     configOptions.set(
         mapOf(
             "delegatePattern" to "true",
-            "useSpringBoot3" to "true",
+            "useSpringBoot4" to "true",
+            "useJackson3" to "true",
             "openApiNullable" to "false",
             "documentationProvider" to "springdoc",
             "useTags" to "true"
