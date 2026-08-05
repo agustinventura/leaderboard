@@ -1,0 +1,3 @@
+learnings:
+  - "For Spring Boot 4 migration work, run OpenAPI generation with `:infrastructure:openApiGenerate`; `:infrastructure:generate` does not exist."
+  - "The known missing REST adapter/bootstrap compile blockers are separate from dependency migrations and must remain out of scope unless explicitly included."

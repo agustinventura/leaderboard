@@ -1,0 +1,207 @@
+metadata:
+  task_id: "spr-4-spring-boot-4"
+  author: "scout"
+  status: "completed"
+
+analyzed_files:
+  - "gradle/libs.versions.toml"
+  - "build.gradle.kts"
+  - "settings.gradle.kts"
+  - "gradle/wrapper/gradle-wrapper.properties"
+  - "infrastructure/build.gradle.kts"
+  - "acceptance-tests/build.gradle.kts"
+  - "infrastructure/src/main/java/dev/agustinventura/leaderboard/configuration/LeaderboardApplicationConfiguration.java"
+  - "infrastructure/src/test/java/dev/agustinventura/leaderboard/adapters/in/rest/LeaderboardRestAdapterTest.java"
+  - "acceptance-tests/src/test/java/dev/agustinventura/leaderboard/CucumberSpringConfiguration.java"
+  - "acceptance-tests/src/test/java/dev/agustinventura/leaderboard/steps/LeaderboardSteps.java"
+  - "acceptance-tests/src/test/resources/features/get_leaderboard.feature"
+  - "architecture-tests/src/test/java/dev/agustinventura/leaderboard/architecture_tests/DomainRulesTest.java"
+  - "architecture-tests/src/test/java/dev/agustinventura/leaderboard/architecture_tests/ApplicationRulesTest.java"
+  - "architecture-tests/src/test/java/dev/agustinventura/leaderboard/architecture_tests/InfrastructureRulesTest.java"
+  - "infrastructure/src/main/resources/api/openapi.yaml"
+  - "docs/ADRs/ADR-003_Test_strategy.md"
+  - "docs/ADRs/ADR-006_Architecture_implementation.md"
+  - "docs/ADRs/ADR-010_Development_framework.md"
+  - "docs/ADRs/ADR-011_Test_stack.md"
+  - "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+
+findings:
+  - "The catalog pins Spring Boot at 3.5.8. The root build applies the Boot plugin from this catalog, infrastructure imports the same BOM, and acceptance-tests imports SpringBootPlugin.BOM_COORDINATES; a single catalog version change controls all three."
+  - "The Java toolchain is 25 and the wrapper is Gradle 9.2.1. Java 25 exceeds the Boot 4 minimum of Java 17, and no toolchain/wrapper migration is required."
+  - "Boot 4 requires Spring Framework 7.x, Jakarta EE 11, and Servlet 6.1. No code imports javax.*, no application configuration files exist, and there is no Undertow, WAR, custom HttpMessageConverter, EnvironmentPostProcessor, PropertyMapper, Jackson mapper, or deprecated Boot test API use to migrate."
+  - "The only MVC starter is catalog alias spring-boot-starter-web, consumed by infrastructure. The official guide marks that starter deprecated and maps it to spring-boot-starter-webmvc."
+  - "The acceptance module currently depends on the generic spring-boot-starter-test. Boot 4's modular test guidance requires the technology-specific spring-boot-starter-webmvc-test for MVC tests; it brings the generic test starter transitively."
+  - "infrastructure directly declares jakarta.validation-api. Boot 4 provides the focused spring-boot-starter-validation; use it rather than only the API so generated Jakarta validation annotations retain a managed provider/runtime integration."
+  - "infrastructure uses springdoc-openapi-starter-webmvc-ui 2.8.14. Springdoc's compatibility matrix states that 3.x is compatible with Boot 4 and specifically maps Boot 4.0.x to Springdoc 3.0.x. This direct dependency must be upgraded to a compatible 3.x release (3.1.0 was the latest stable release observed)."
+  - "OpenAPI Generator is pinned at 7.17.0 and its Spring generator offers only useSpringBoot3. The first checked release exposing useSpringBoot4 is 7.20.0. Its Boot 4 option disables useSpringBoot3 and permits useJackson3; generated sources must be regenerated after upgrading the plugin and config."
+  - "Boot 4 prefers Jackson 3 (tools.jackson packages). The project has no direct Jackson imports or properties, but the generated REST layer and Springdoc are JSON-facing. Select generator useSpringBoot4=true and useJackson3=true with the compatible Springdoc 3.x line; do not add the deprecated Boot Jackson 2 bridge unless a resolved third-party incompatibility requires it."
+  - "The Cucumber context uses @SpringBootTest(RANDOM_PORT) and step definitions inject org.springframework.boot.test.web.server.LocalServerPort, then issue real HTTP calls through REST Assured. These APIs remain valid; no MockMvc, WebClient, TestRestTemplate, @MockBean, @SpyBean, @PropertyMapping, Mockito @Captor, or Mockito @Mock Spring listener usage was found."
+  - "The architecture rules keep domain framework-free, application independent of infrastructure, and inspect unchanged Spring annotation FQCNs. No Boot-4-specific ArchUnit rule change is required."
+  - "Independent baseline blocker: no tracked @SpringBootApplication source exists. The OpenAPI task explicitly ignores the generator's OpenApiGeneratorApplication, while InfrastructureRulesTest requires exactly one dev.agustinventura.leaderboard.infrastructure.LeaderboardApplication. Cucumber's @SpringBootTest also has no discoverable application configuration. This predates the migration but prevents a green full/acceptance/architecture suite unless separately restored or intentionally included in the approved scope."
+
+technical_assessment: |
+  Scope and module map
+  --------------------
+  The five Gradle modules are domain, application, infrastructure, architecture-tests,
+  and acceptance-tests. The dependency direction is domain <- application <- infrastructure;
+  architecture-tests consumes all three and acceptance-tests test-consumes infrastructure.
+  ADR-006 and the ArchUnit rules require that direction to remain intact. Spring dependencies
+  are confined to infrastructure and acceptance tests, except that architecture tests refer to
+  Spring annotation names as strings. Do not add Spring dependencies to domain/application.
+
+  The current shared build setup is:
+
+    // build.gradle.kts
+    extensions.configure<JavaPluginExtension> {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(25))
+        }
+    }
+    tasks.withType<Test> { useJUnitPlatform() }
+
+    # gradle/wrapper/gradle-wrapper.properties
+    distributionUrl=https\://services.gradle.org/distributions/gradle-9.2.1-bin.zip
+
+  These already satisfy the official guide's Java-17-or-newer requirement. Boot's plugin,
+  BOM, and version catalog have no competing explicit Spring Framework version, so upgrading
+  the catalog Boot version lets Boot manage Framework 7 and the Jakarta EE 11/Servlet 6.1
+  graph consistently. The guide says to upgrade to the latest 4.0 maintenance release; Maven
+  Central showed 4.0.7 as the latest observed 4.0.x release during this investigation. Use the
+  latest available 4.0.x at implementation time rather than hard-coding an older patch level.
+
+  Required dependency and generation migration
+  --------------------------------------------
+  The relevant current catalog/build fragments are:
+
+    # gradle/libs.versions.toml
+    [versions]
+    springBoot = "3.5.8"
+    springdoc = "2.8.14"
+    openapi-generator = "7.17.0"
+    validation-api = "3.1.1"
+
+    spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+    spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+    validation-api = { module = "jakarta.validation:jakarta.validation-api", version.ref = "validation-api" }
+
+    # infrastructure/build.gradle.kts
+    implementation(platform(libs.spring.boot.bom))
+    implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.validation.api)
+    implementation(libs.springdoc.openapi.starter.webmvc.ui)
+
+    # acceptance-tests/build.gradle.kts
+    testImplementation(libs.spring.boot.starter.test)
+
+    # infrastructure OpenAPI generation options
+    "useSpringBoot3" to "true",
+    "openApiNullable" to "false",
+    "documentationProvider" to "springdoc",
+    "useTags" to "true"
+
+  Minimal intended file changes:
+  1. gradle/libs.versions.toml: move springBoot to the latest 4.0.x maintenance version;
+     replace the web alias module with org.springframework.boot:spring-boot-starter-webmvc;
+     add/use spring-boot-starter-webmvc-test and spring-boot-starter-validation aliases; upgrade
+     springdoc to its Boot-4-compatible 3.x line; and raise openapi-generator to at least 7.20.0
+     (or a newer available release) because 7.17.0 cannot target Boot 4.
+  2. infrastructure/build.gradle.kts: consume webmvc and validation starter aliases, and replace
+     useSpringBoot3=true with useSpringBoot4=true. Enable useJackson3=true so generated code
+     agrees with Boot 4's Jackson 3 default. The inspected generator implementation explicitly
+     turns useSpringBoot3 off when useSpringBoot4 is set.
+  3. acceptance-tests/build.gradle.kts: replace the generic test starter alias with the MVC test
+     starter alias, preserving Cucumber, REST Assured, and the existing BOM import.
+
+  The official guide's relevant mappings are:
+
+    deprecated: spring-boot-starter-web
+    replacement: spring-boot-starter-webmvc
+    MVC test starter: spring-boot-starter-webmvc-test
+    validation starter: spring-boot-starter-validation
+    actuator starter: spring-boot-starter-actuator (unchanged)
+
+  No source/API change is currently indicated for
+  LeaderboardApplicationConfiguration, LeaderboardRestAdapterTest, CucumberSpringConfiguration,
+  LeaderboardSteps, the feature file, or openapi.yaml. In particular, LocalServerPort remains at
+  org.springframework.boot.test.web.server.LocalServerPort and the acceptance suite does not
+  use the test APIs whose Boot 4 behavior changed. Generated output is under build/generated and
+  is not tracked; it must not be manually edited.
+
+  Compatibility checks and non-applicable guide items
+  ---------------------------------------------------
+  - Springdoc is a hard compatibility boundary: 2.8.14 is a Boot-3-era line. Its official
+    matrix says Boot 4.0.x -> Springdoc 3.0.x; choose the latest stable 3.x while respecting
+    that mapping, then exercise /v3/api-docs and Swagger UI through a running MVC context if
+    the application baseline is repaired.
+  - The OpenAPI Generator 7.17.0 source exposes useSpringBoot3 only. Generator 7.20.0 is the
+    first inspected tag with useSpringBoot4 and useJackson3. A plugin upgrade is therefore
+    required, not merely a config flip. Regeneration is required before compilation.
+  - Boot 4's Jackson 3 migration is potentially source-breaking for any future
+    com.fasterxml.jackson.databind imports. None exist in the tracked project. Swagger
+    annotations are independent API annotations and remain explicitly versioned; resolve and
+    compile them with the selected Springdoc line rather than assuming a Jackson-2 bridge.
+  - The guide's changes to MockMvc, TestRestTemplate/WebClient, @MockBean/@SpyBean,
+    @PropertyMapping, HttpMessageConverters, nullable annotations, Actuator endpoint
+    parameters, EnvironmentPostProcessor, property migration, Undertow, WAR Tomcat runtime,
+    and configuration properties do not apply to tracked code. There are no
+    application.properties/application.yml files. Do not add a properties migrator without
+    properties to diagnose.
+  - Embedded Tomcat obtained through the MVC starter is Boot-managed and is the Servlet-6.1
+    compliant path. There is no Undertow or external WAR deployment.
+
+  Test and architecture conventions
+  ---------------------------------
+  Unit tests use JUnit Jupiter + AssertJ. The acceptance test is executable BDD:
+
+    @CucumberContextConfiguration
+    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+    public class CucumberSpringConfiguration { }
+
+  It issues REST Assured requests against the injected random port. Preserve this real-server
+  convention; it is specifically not a MockMvc or TestRestTemplate test. ADR-003 requires
+  BDD features plus TDD tests, and ADR-011 fixes JUnit 5, Cucumber, AssertJ, Mockito, and
+  Instancio as the testing stack.
+
+  ArchUnit does not require a package/name update for Spring Framework 7. It continues to
+  enforce framework-free domain code and one Boot entry point. The existing rule's decisive
+  condition is:
+
+    .filter(javaClass -> javaClass.isAnnotatedWith(
+        "org.springframework.boot.autoconfigure.SpringBootApplication"))
+    ...
+    assertThat(applicationClasses).hasSize(1);
+    assertThat(mainClass.getSimpleName()).isEqualTo("LeaderboardApplication");
+    assertThat(mainClass.getPackageName())
+        .isEqualTo("dev.agustinventura.leaderboard.infrastructure");
+
+  Baseline issue to resolve before declaring migration validation green
+  --------------------------------------------------------------------
+  Current tracked sources have no @SpringBootApplication. The sole configuration class is in
+  dev.agustinventura.leaderboard.configuration (also not the infrastructure.config package
+  stated by the configuration ArchRule), and OpenAPI generation excludes
+  src/main/java/org/openapitools/OpenApiGeneratorApplication.java. Consequently:
+  - InfrastructureRulesTest's exactly-one entrypoint assertion should fail with zero classes.
+  - @SpringBootTest in acceptance-tests has no application configuration to discover.
+
+  This is not caused by Boot 4 and should be logged as a pre-existing baseline failure. If the
+  approved migration scope includes making the existing required validation suite pass, first
+  restore one explicitly owned infrastructure entry point compatible with the rule; do not
+  rely on a generated, ignored application class. Keep that work separate in the plan from
+  dependency/API migration so it is not misdiagnosed as a Boot 4 incompatibility.
+
+  Narrow validation commands (after implementation)
+  -------------------------------------------------
+  1. ./gradlew :infrastructure:generate
+     Regenerates the contract-derived MVC API and DTOs using the new Boot-4/Jackson-3 options.
+  2. ./gradlew :infrastructure:test
+     Compiles generated sources and executes the adapter unit test.
+  3. ./gradlew :acceptance-tests:test
+     Validates Cucumber + @SpringBootTest RANDOM_PORT + REST Assured with the MVC test starter.
+     This is expected to expose the documented missing-entrypoint baseline until it is addressed.
+  4. ./gradlew :architecture-tests:test
+     Confirms module/annotation constraints and exposes the documented entrypoint/config-package
+     baseline issue independently of the dependency upgrade.
+  5. ./gradlew test
+     Final cross-module test verification. Run ./gradlew build only if the task acceptance
+     criteria also require packaged-artifact verification.

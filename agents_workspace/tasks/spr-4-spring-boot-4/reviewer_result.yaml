@@ -1,0 +1,32 @@
+metadata:
+  task_id: "spr-4-spring-boot-4"
+  author: "reviewer"
+  status: "approved"
+
+detected_problems: []
+
+comments: |
+  Re-review against the revised approved plan, implementer report, and scout findings is
+  approved. The only migration changes are the three approved Gradle/catalog files; the
+  separate .gitignore addition was left untouched as explicitly authorized. No application,
+  test, contract, generated tracked output, root build, wrapper, toolchain, or architecture
+  source/configuration change was made.
+
+  Catalog and build-script requirements are satisfied: Spring Boot is 4.0.7, Springdoc is
+  3.1.0, OpenAPI Generator is 7.20.0, MVC/validation/MVC-test starters replace their required
+  predecessors, and generation uses useSpringBoot4=true and useJackson3=true with no
+  useSpringBoot3 option. Existing acceptance-test BOM, Cucumber, REST Assured, and source
+  configuration remain unchanged. Architecture boundaries remain unchanged.
+
+  Validation performed:
+  - ./gradlew :infrastructure:openApiGenerate: SUCCESS (generated output remains untracked).
+  - ./gradlew :infrastructure:dependencyInsight --configuration runtimeClasspath --dependency
+    org.springframework.boot:spring-boot-jackson2: SUCCESS; no matching bridge dependency.
+  - ./gradlew :infrastructure:test, ./gradlew :acceptance-tests:test,
+    ./gradlew :architecture-tests:test, and ./gradlew test: each stops at
+    :infrastructure:compileJava because the pre-existing
+    LeaderboardApplicationConfiguration references absent LeaderboardRestAdapter.
+
+  The latter failures are the explicitly authorized out-of-scope blocker, not a migration
+  regression. The separately absent owned LeaderboardApplication bootstrap was not remediated,
+  as required.

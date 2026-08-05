@@ -1,0 +1,47 @@
+metadata:
+  task_id: "spr-4-spring-boot-4"
+  author: "leader"
+  task_type: "dependency_upgrade"
+  status: "pending"
+
+objective: |
+  Upgrade the repository to Spring Boot 4 in accordance with the official Spring Boot
+  4.0 migration guide, preserving the project's BDD/TDD test suite and architecture
+  constraints.
+
+workflow:
+  - step: 1
+    agent: "scout"
+    action: |
+      Inspect the Gradle build, module layout, existing Spring Boot/Spring Framework
+      integrations, test conventions, and architecture-test rules. Compare the current
+      setup with the applicable items in the Spring Boot 4.0 migration guide and report
+      the precise affected files, required API/configuration migrations, and commands
+      needed to validate the upgrade. Do not modify source or build files.
+    expected_output: "scout_findings.yaml"
+
+  - step: 2
+    agent: "leader"
+    action: |
+      Produce an implementation plan from the scout findings. Specify a minimal,
+      ordered migration that updates tests alongside affected production code, preserves
+      module boundaries, and gives binary acceptance criteria and validation commands.
+    expected_output: "draft_implementation_plan.yaml"
+
+  - step: 3
+    agent: "implementer"
+    action: |
+      Execute the approved plan using the repository's TDD/BDD conventions: make the
+      required Spring Boot 4 dependency, configuration, API, and test changes; run the
+      targeted tests as changes are made; then run the full prescribed verification
+      suite. Keep changes limited to the migration and record results.
+    expected_output: "implementer_result.yaml"
+
+  - step: 4
+    agent: "reviewer"
+    action: |
+      Review the implementation against the approved plan, the Spring Boot 4 migration
+      requirements identified by the scout, existing BDD/TDD expectations, and
+      architecture conventions. Independently run or assess the required verification
+      commands and report pass/fail findings.
+    expected_output: "reviewer_result.yaml"

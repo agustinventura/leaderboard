@@ -1,0 +1,37 @@
+metadata:
+  task_id: "spr-4-spring-boot-4"
+  author: "implementer"
+  status: "blocked"
+
+modified_files:
+  - "gradle/libs.versions.toml"
+  - "infrastructure/build.gradle.kts"
+  - "acceptance-tests/build.gradle.kts"
+
+notes: |
+  Completed the approved catalog and build-script migration: Spring Boot 4.0.7,
+  Springdoc 3.1.0, OpenAPI Generator 7.20.0, Boot MVC/validation/test
+  starters, and OpenAPI Generator useSpringBoot4/useJackson3 options.
+
+  Baseline before the migration:
+  - :infrastructure:test, :acceptance-tests:test, and :architecture-tests:test
+    each failed in :infrastructure:compileJava because the tracked
+    LeaderboardApplicationConfiguration imports and constructs the absent
+    dev.agustinventura.leaderboard.adapters.in.rest.LeaderboardRestAdapter.
+
+  Validation after the migration:
+  - :infrastructure:generate failed because no task named "generate" exists.
+    The configured task is :infrastructure:openApiGenerate, which succeeded
+    and regenerated ignored build/generated sources.
+  - :infrastructure:test, :acceptance-tests:test, :architecture-tests:test,
+    and test each failed at the same pre-existing missing
+    LeaderboardRestAdapter compile error, before test execution.
+  - :infrastructure:dependencies --configuration runtimeClasspath succeeded.
+    :infrastructure:dependencyInsight for spring-boot-jackson2 reported no
+    matching runtime dependency; no deprecated Boot Jackson 2 bridge was added.
+
+  No application bootstrap class
+  (dev.agustinventura.leaderboard.infrastructure.LeaderboardApplication) is
+  present, which remains the plan-identified separate blocker once the
+  pre-existing adapter compilation failure is corrected. No bootstrap or
+  adapter source was changed because both are outside approved migration scope.

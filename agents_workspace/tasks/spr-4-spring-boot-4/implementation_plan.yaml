@@ -1,0 +1,58 @@
+metadata:
+  task_id: "spr-4-spring-boot-4"
+  author: "leader"
+  status: "draft"
+
+acceptance_criteria:
+  - "gradle/libs.versions.toml sets Spring Boot to 4.0.7 (or the latest verified 4.0.x maintenance release), Springdoc to a Boot-4-compatible 3.x release, and OpenAPI Generator to 7.20.0 or newer."
+  - "infrastructure/build.gradle.kts uses catalog aliases for spring-boot-starter-webmvc and spring-boot-starter-validation instead of spring-boot-starter-web and direct jakarta.validation-api, and its OpenAPI options set useSpringBoot4=true and useJackson3=true with no useSpringBoot3 option."
+  - "acceptance-tests/build.gradle.kts uses spring-boot-starter-webmvc-test instead of the generic spring-boot-starter-test, while its BOM import, Cucumber, REST Assured, RANDOM_PORT setup, and LocalServerPort usage are unchanged."
+  - "Only gradle/libs.versions.toml, infrastructure/build.gradle.kts, and acceptance-tests/build.gradle.kts are modified for this migration. No domain, application, infrastructure Java source, test source, OpenAPI contract, root build/wrapper/toolchain, architecture-rule, or configuration file is changed. The unrelated .gitignore addition is outside this task and remains untouched."
+  - "./gradlew :infrastructure:openApiGenerate exits with status 0 and generated output is not hand-edited or committed."
+  - "./gradlew :infrastructure:test, ./gradlew :acceptance-tests:test, ./gradlew :architecture-tests:test, and ./gradlew test are run and their results are recorded. A failure at compilation caused by the pre-existing missing LeaderboardRestAdapter, or later validation prevented by the pre-existing missing owned LeaderboardApplication bootstrap, is recorded as an out-of-scope blocker rather than fixed, masked, or attributed to this migration."
+  - "Runtime dependency resolution shows no org.springframework.boot:spring-boot-jackson2 bridge unless a specific incompatible third-party dependency requires it and the exception is documented."
+
+steps: |
+  1. Establish the baseline by running `./gradlew :infrastructure:test`,
+     `./gradlew :acceptance-tests:test`, and `./gradlew :architecture-tests:test`. Record the
+     existing compilation failure from the absent `LeaderboardRestAdapter` and, if reached, the
+     missing owned `LeaderboardApplication` bootstrap as separate, pre-existing, out-of-scope
+     validation blockers. Do not create, restore, alter, or otherwise address either class.
+
+  2. Update only `gradle/libs.versions.toml`: set `springBoot` to 4.0.7 (or the latest verified
+     4.0.x maintenance release), Springdoc to the compatible 3.x line, and OpenAPI Generator to
+     7.20.0 or newer. Replace the web starter alias with
+     `org.springframework.boot:spring-boot-starter-webmvc`; add aliases for
+     `org.springframework.boot:spring-boot-starter-webmvc-test` and
+     `org.springframework.boot:spring-boot-starter-validation`; remove the direct
+     `jakarta.validation-api` alias/version if it has no remaining consumer. Leave actuator
+     unchanged.
+
+  3. Update `infrastructure/build.gradle.kts` to consume the webmvc and validation starter
+     aliases while retaining the Boot BOM and Springdoc dependency. In the existing OpenAPI
+     Generator configuration, replace `useSpringBoot3=true` with `useSpringBoot4=true` and add
+     `useJackson3=true`; preserve all other generator options and leave `openapi.yaml`
+     unchanged. Generated `build/` files are regenerated only by Gradle and are never
+     hand-edited or committed.
+
+  4. Update `acceptance-tests/build.gradle.kts` to consume the webmvc test-starter alias.
+     Preserve its existing BOM import and all Cucumber, REST Assured, random-port, and test
+     configuration. Do not change application or test source code.
+
+  5. Do not change root build settings, the Gradle wrapper, Java toolchain, domain/application
+     dependencies, contracts, configuration, or architecture rules. Do not add a Jackson 2
+     bridge, properties migrator, servlet/WAR changes, or test-API substitutions. Do not modify
+     `.gitignore`; its unrelated addition is explicitly outside migration scope.
+
+  6. Regenerate and validate in order with `./gradlew :infrastructure:openApiGenerate`,
+     `./gradlew :infrastructure:test`, `./gradlew :acceptance-tests:test`,
+     `./gradlew :architecture-tests:test`, and `./gradlew test`. Confirm generation succeeds
+     and inspect dependency resolution for the deprecated Boot Jackson 2 bridge. For any test
+     command stopped by the missing adapter or bootstrap, record the exact command and failure
+     as the pre-existing out-of-scope blocker; neither blocker is to be fixed within this task.
+
+risks:
+  - "Springdoc 2.8.14 is not compatible with Boot 4; retain a Springdoc 3.x line compatible with the selected Boot 4.0.x release."
+  - "OpenAPI Generator versions before 7.20.0 do not expose the required Boot-4 generation options; upgrade before changing generator flags."
+  - "Jackson 3 can expose an unscouted third-party incompatibility. Diagnose resolution failures before considering an explicitly documented compatibility exception."
+  - "The missing LeaderboardRestAdapter and missing owned LeaderboardApplication bootstrap predate this migration. They block full test validation but are explicitly out of scope and must not be remediated here."
