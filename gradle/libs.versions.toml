@@ -2,7 +2,7 @@
 springBoot = "4.0.7"
 springDependencyManagement = "1.1.7"
 
-junit = "5.14.1"
+junit = "6.1.2"
 junit-platform = "1.14.1"
 mockito = "5.20.0"
 assertj = "3.27.6"
